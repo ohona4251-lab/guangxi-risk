@@ -1,0 +1,22 @@
+[
+    {
+        "index": 0,
+        "input_text": "placeholder inspection description",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [],
+        "schema_definition": {},
+        "canonicalization_candidates": "[]",
+        "schema_canonicalizaiton": []
+    },
+    {
+        "index": 1,
+        "input_text": "rule doc placeholder",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [],
+        "schema_definition": {},
+        "canonicalization_candidates": "[]",
+        "schema_canonicalizaiton": []
+    }
+]

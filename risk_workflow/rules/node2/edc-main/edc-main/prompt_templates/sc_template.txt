@@ -1,0 +1,11 @@
+﻿给定以下文本和其中一个关系三元组：
+
+文本：{input_text}
+三元组：{query_triplet}
+
+其中关系“{query_relation}”的定义是“{query_relation_definition}”。
+请判断是否应将该关系替换为候选关系中的某一个。
+只输出你选择的字母（例如 A、B、C），不要输出其他内容。
+
+候选项：
+{choices}

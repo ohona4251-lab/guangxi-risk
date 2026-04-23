@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>风险点智能分级系统</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <p class="eyebrow">Risk Inspection Console</p>
+          <h1>基于大模型的风险点智能分级系统</h1>
+          <p class="subtitle">巡检表单、监测点与风险分级结果的统一可视化入口</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="user-chip">当前用户：admin（管理员）</div>
+          <button class="ghost-btn" type="button">退出登录</button>
+        </div>
+      </header>
+
+      <section class="toolbar">
+        <div class="toolbar-left">
+          <button class="tab-btn is-active" type="button">风险分级规则</button>
+          <button class="tab-btn" type="button">风险点管理</button>
+        </div>
+        <div class="toolbar-filters">
+          <label class="field">
+            <span>时间范围</span>
+            <input type="text" value="2026-04-22 至 2026-04-23" readonly />
+          </label>
+          <label class="field">
+            <span>事件类型</span>
+            <select>
+              <option>全部事件</option>
+            </select>
+          </label>
+          <div class="risk-filter">
+            <span>风险等级</span>
+            <div class="checks">
+              <label><input type="checkbox" checked /> I级</label>
+              <label><input type="checkbox" checked /> II级</label>
+              <label><input type="checkbox" checked /> III级</label>
+              <label><input type="checkbox" checked /> IV级</label>
+            </div>
+          </div>
+        </div>
+        <div class="toolbar-right">
+          <div class="progress-card">
+            <div>
+              <p>分级进度</p>
+              <strong>18 / 20</strong>
+            </div>
+            <div class="progress-track">
+              <span style="width: 90%"></span>
+            </div>
+          </div>
+          <button class="primary-outline" type="button">一键分级</button>
+        </div>
+      </section>
+
+      <section class="status-row">
+        <div class="status-panel status-panel-time">
+          <p>当前时间 <strong id="current-time"></strong></p>
+          <p>距定时分级（08:00）<strong class="success-text">22:23:50</strong></p>
+        </div>
+        <div class="status-panel">
+          <span>监测点总数</span>
+          <strong id="stat-monitor-count">0</strong>
+        </div>
+        <div class="status-panel">
+          <span>桥梁 / 边坡</span>
+          <strong id="stat-type-breakdown">0 / 0</strong>
+        </div>
+        <div class="status-panel danger">
+          <span>当前告警点</span>
+          <strong id="stat-alert-breakdown">0</strong>
+        </div>
+      </section>
+
+      <main class="content-grid">
+        <aside class="point-list-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>检测点列表</h2>
+              <p id="list-summary">桥梁：0 处 | 边坡：0 处</p>
+            </div>
+            <div class="mini-tabs">
+              <button class="mini-tab is-active" type="button" data-type="桥梁">桥梁</button>
+              <button class="mini-tab" type="button" data-type="边坡">边坡</button>
+            </div>
+          </div>
+          <div id="point-list" class="point-list"></div>
+        </aside>
+
+        <section class="map-panel">
+          <div class="map-surface">
+            <div class="map-overlay">
+              <div class="map-title">
+                <h2>区域分布</h2>
+                <p>检测点在辖区内的风险空间分布</p>
+              </div>
+              <div class="map-legend">
+                <h3>图例</h3>
+                <ul>
+                  <li><span class="legend-dot risk-i"></span> I级风险</li>
+                  <li><span class="legend-dot risk-ii"></span> II级风险</li>
+                  <li><span class="legend-dot risk-iii"></span> III级风险</li>
+                  <li><span class="legend-dot risk-iv"></span> IV级风险</li>
+                </ul>
+              </div>
+            </div>
+            <div id="map-root" class="map-root" aria-label="检测点地图"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="detail-modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <div class="modal-dialog">
+        <button class="modal-close" type="button" data-close-modal="true">×</button>
+        <div class="modal-header">
+          <div>
+            <p class="eyebrow">Point Detail</p>
+            <h2 id="detail-title">风险点详情</h2>
+          </div>
+        </div>
+
+        <div id="detail-overview" class="detail-view">
+          <div class="detail-layout">
+            <div class="detail-left">
+              <section class="detail-card" id="detail-basic"></section>
+              <section class="detail-card" id="detail-monitor-list"></section>
+            </div>
+
+            <div class="detail-right">
+              <section class="detail-card graph-card">
+                <div class="card-head">
+                  <div>
+                    <h3>巡检知识图谱</h3>
+                    <p id="inspection-graph-meta"></p>
+                  </div>
+                  <button class="ghost-btn small" type="button">刷新</button>
+                </div>
+                <div id="inspection-graph" class="graph-board"></div>
+              </section>
+
+              <section class="detail-card graph-card">
+                <div class="card-head">
+                  <div>
+                    <h3>监测融合图谱</h3>
+                    <p id="monitor-graph-meta"></p>
+                  </div>
+                  <button class="ghost-btn small" type="button">刷新</button>
+                </div>
+                <div id="monitor-graph" class="graph-board"></div>
+              </section>
+
+              <section class="detail-card result-card" id="detail-grade"></section>
+
+              <section class="detail-card review-card" id="detail-review"></section>
+            </div>
+          </div>
+        </div>
+
+        <div id="detail-review-page" class="detail-view hidden">
+          <div class="review-page-header">
+            <div>
+              <h3>复核学习详情</h3>
+              <p id="review-page-subtitle">进入风险点复核表单。</p>
+            </div>
+            <button id="review-back-btn" class="ghost-btn small" type="button">返回概览</button>
+          </div>
+
+          <div class="review-page-layout">
+            <section class="detail-card review-form-card">
+              <h4>复核表单</h4>
+              <div class="review-form">
+                <label class="review-field">
+                  <span>节点四等级</span>
+                  <input id="review-node-grade" type="text" readonly />
+                </label>
+
+                <label class="review-field">
+                  <span>人工修正等级</span>
+                  <select id="review-manual-grade">
+                    <option>I级</option>
+                    <option>II级</option>
+                    <option>III级</option>
+                    <option>IV级</option>
+                  </select>
+                </label>
+
+                <fieldset class="review-fieldset">
+                  <legend>人工结论</legend>
+                  <label><input type="radio" name="review-conclusion" value="正确" checked /> 正确</label>
+                  <label><input type="radio" name="review-conclusion" value="等级偏低" /> 等级偏低</label>
+                  <label><input type="radio" name="review-conclusion" value="等级偏高" /> 等级偏高</label>
+                  <label><input type="radio" name="review-conclusion" value="依据不足" /> 依据不足</label>
+                  <label><input type="radio" name="review-conclusion" value="推理错误" /> 推理错误</label>
+                  <label><input type="radio" name="review-conclusion" value="无法判断" /> 无法判断</label>
+                </fieldset>
+
+                <fieldset class="review-fieldset inline">
+                  <legend>是否正确</legend>
+                  <label><input type="radio" name="review-correct" value="正确" /> 正确</label>
+                  <label><input type="radio" name="review-correct" value="错误" checked /> 错误</label>
+                </fieldset>
+
+                <label class="review-field">
+                  <span>备注</span>
+                  <textarea id="review-remark" rows="5" placeholder="补充人工复核依据"></textarea>
+                </label>
+
+                <button id="review-submit-btn" class="primary-btn" type="button">填写内容</button>
+              </div>
+            </section>
+
+            <section class="detail-card review-result-card">
+              <h4>复核结果</h4>
+              <div id="review-result-panel" class="review-result-panel">暂无复核结果。</div>
+            </section>
+          </div>
+        </div>
+        <div id="detail-inspection-page" class="detail-view hidden">
+          <div class="review-page-header">
+            <div>
+              <h3>巡检信息详情</h3>
+              <p id="inspection-page-subtitle">查看当前检测点的详细巡检文本。</p>
+            </div>
+            <button id="inspection-back-btn" class="ghost-btn small" type="button">返回概览</button>
+          </div>
+
+          <div class="review-page-layout inspection-page-layout">
+            <section class="detail-card review-form-card">
+              <h4>巡检概况</h4>
+              <div id="inspection-summary-panel" class="inspection-summary-panel"></div>
+            </section>
+
+            <section class="detail-card review-result-card">
+              <h4>详细巡检文本</h4>
+              <div id="inspection-detail-panel" class="inspection-detail-panel"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

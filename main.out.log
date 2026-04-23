@@ -1,0 +1,113 @@
+Using thread_id: demo-thread-interrupt-787ad4f9
+[node1 16:35:28] start extraction: docs=2, model=qwen3.6-plus, timeout=120.0s, max_input_chars=120000
+[node1 16:35:28] [1/2] start doc=公路桥梁安全风险辨识与隐患排查指南（试行）.pdf chars=22386
+[node1 16:43:56] [1/2] failed doc=公路桥梁安全风险辨识与隐患排查指南（试行）.pdf elapsed=507.73s error=Error code: 500 - {'error': {'message': '<503> InternalError.Algo: An error occurred in model serving, error message is: [Too many requests. Your requests are being throttled due to system capacity limits. Please try again later.]', 'type': 'ServiceUnavailable', 'param': None, 'code': 'ServiceUnavailable'}, 'id': 'chatcmpl-4acf610f-2eb1-9dbd-b178-d9dc590ed7b3', 'request_id': '4acf610f-2eb1-9dbd-b178-d9dc590ed7b3'}
+[EDC][OIE][index=0] []
+[EDC][OIE][index=1] []
+[EDC][SCHEMA_DEFINITION][index=0] {}
+[EDC][SCHEMA_DEFINITION][index=1] {}
+Embedding target schema...
+[EDC][SCHEMA_CANONICALIZATION][index=0] {"canonicalized_triplets": [], "candidates": []}
+[EDC][SCHEMA_CANONICALIZATION][index=1] {"canonicalized_triplets": [], "candidates": []}
+[EDC][FINAL_KG][index=0] []
+[EDC][FINAL_KG][index=1] []
+
+Execution paused at human_review.
+Interrupt payload:
+{'case_id': 'case-001',
+ 'object_id': 'slope-A-17',
+ 'review_payload': {'report': {'status': 'placeholder_history_validation',
+                               'history_count': 1,
+                               'consistency': 'unknown'},
+                    'validated_result': {'candidate_risk_level': 'candidate_high',
+                                         'needs_manual_review': True},
+                    'grading_basis': {'status': 'placeholder_grading_basis',
+                                      'used_reconstructed_kg': True,
+                                      'anomaly_detected': True},
+                    'explanation': 'placeholder explanation for candidate risk '
+                                   'result'},
+ 'message': 'Please provide manual review decision: approved or rejected.'}
+Resuming with manual decision:
+{'decision': 'rejected', 'comment': 'demo: please refine inspection rules'}
+[EDC][OIE][index=0] []
+[EDC][OIE][index=1] []
+[EDC][SCHEMA_DEFINITION][index=0] {}
+[EDC][SCHEMA_DEFINITION][index=1] {}
+Embedding target schema...
+[EDC][SCHEMA_CANONICALIZATION][index=0] {"canonicalized_triplets": [], "candidates": []}
+[EDC][SCHEMA_CANONICALIZATION][index=1] {"canonicalized_triplets": [], "candidates": []}
+[EDC][FINAL_KG][index=0] []
+[EDC][FINAL_KG][index=1] []
+
+Execution paused at human_review.
+Interrupt payload:
+{'case_id': 'case-001',
+ 'object_id': 'slope-A-17',
+ 'review_payload': {'report': {'status': 'placeholder_history_validation',
+                               'history_count': 1,
+                               'consistency': 'unknown'},
+                    'validated_result': {'candidate_risk_level': 'candidate_high',
+                                         'needs_manual_review': True},
+                    'grading_basis': {'status': 'placeholder_grading_basis',
+                                      'used_reconstructed_kg': True,
+                                      'anomaly_detected': True},
+                    'explanation': 'placeholder explanation for candidate risk '
+                                   'result'},
+ 'message': 'Please provide manual review decision: approved or rejected.'}
+Resuming with manual decision:
+{'decision': 'approved', 'comment': 'demo: updated result is acceptable'}
+Workflow finished. Final state:
+{'case_id': 'case-001',
+ 'object_id': 'slope-A-17',
+ 'raw_rule_docs': ['rule doc placeholder'],
+ 'inspection_text': 'placeholder inspection description',
+ 'object_meta': {'region': 'GX', 'category': 'slope'},
+ 'monitoring_data': {'force_anomaly': True},
+ 'history_records': [{'id': 'hist-001', 'result': 'placeholder'}],
+ 'parsed_rules': {'status': 'placeholder_updated_rules',
+                  'previous_rules_present': True,
+                  'update_count': 1},
+ 'updated_rules': {'status': 'placeholder_updated_rules',
+                   'previous_rules_present': True,
+                   'update_count': 1},
+ 'required_info': ['原文未明确给出'],
+ 'rule_update_log': [{'status': 'placeholder_rule_update',
+                      'reason': 'demo: please refine inspection rules'}],
+ 'initial_kg': {'status': 'node2_edc_completed',
+                'edc_output_dir': 'C:\\Users\\z\\Documents\\xwechat_files\\wxid_fl1i1mvlg90d22_9dd4\\msg\\file\\2026-04\\guangxi-risk\\risk_workflow\\outputs\\node2\\case-001_20260423_164659',
+                'source_rules_ready': True,
+                'object_meta_keys': ['category', 'region'],
+                'triplets': [[], []],
+                'nodes': [],
+                'edges': []},
+ 'reconstructed_kg': {'status': 'placeholder_reconstructed_kg',
+                      'base_kg_present': True,
+                      'anomaly_count': 1,
+                      'nodes': [],
+                      'edges': []},
+ 'kg_updated': True,
+ 'anomaly_detected': True,
+ 'anomaly_list': [{'id': 'placeholder-anomaly-1', 'source': 'monitoring_data'}],
+ 'anomaly_summary': 'placeholder: anomaly detected from monitoring input',
+ 'candidate_risk_level': 'candidate_high',
+ 'grading_basis': {'status': 'placeholder_grading_basis',
+                   'used_reconstructed_kg': True,
+                   'anomaly_detected': True},
+ 'explanation': 'placeholder explanation for candidate risk result',
+ 'history_validation_report': {'status': 'placeholder_history_validation',
+                               'history_count': 1,
+                               'consistency': 'unknown'},
+ 'validated_result': {'candidate_risk_level': 'candidate_high',
+                      'needs_manual_review': True},
+ 'review_payload': {'report': {'status': 'placeholder_history_validation',
+                               'history_count': 1,
+                               'consistency': 'unknown'},
+                    'validated_result': {'candidate_risk_level': 'candidate_high',
+                                         'needs_manual_review': True},
+                    'grading_basis': {'status': 'placeholder_grading_basis',
+                                      'used_reconstructed_kg': True,
+                                      'anomaly_detected': True},
+                    'explanation': 'placeholder explanation for candidate risk '
+                                   'result'},
+ 'review_decision': 'approved',
+ 'review_comment': 'demo: updated result is acceptable'}

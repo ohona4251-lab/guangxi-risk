@@ -1,0 +1,72 @@
+{
+  "type": "bridge",
+  "count": 6,
+  "points": [
+    {
+      "id": "BR-BY01",
+      "name": "白云中桥",
+      "category": "桥梁",
+      "risk_level": "II级",
+      "location": "白云中桥",
+      "lnglat": {
+        "lng": 110.295,
+        "lat": 25.2742
+      }
+    },
+    {
+      "id": "SP-LB13",
+      "name": "城北1号桥",
+      "category": "桥梁",
+      "risk_level": "III级",
+      "location": "柳州市柳北区",
+      "lnglat": {
+        "lng": 109.403,
+        "lat": 24.339
+      }
+    },
+    {
+      "id": "BR-LZ02",
+      "name": "柳江二桥",
+      "category": "桥梁",
+      "risk_level": "III级",
+      "location": "柳江二桥",
+      "lnglat": {
+        "lng": 109.376,
+        "lat": 24.312
+      }
+    },
+    {
+      "id": "BR-HZ07",
+      "name": "红光大桥",
+      "category": "桥梁",
+      "risk_level": "I级",
+      "location": "红光大桥",
+      "lnglat": {
+        "lng": 108.361,
+        "lat": 22.816
+      }
+    },
+    {
+      "id": "BR-QS09",
+      "name": "青秀互通道桥",
+      "category": "桥梁",
+      "risk_level": "IV级",
+      "location": "青秀互通",
+      "lnglat": {
+        "lng": 108.398,
+        "lat": 22.799
+      }
+    },
+    {
+      "id": "EX-BR-001",
+      "name": "桥梁伸缩缝巡检点",
+      "category": "桥梁",
+      "risk_level": "II级",
+      "location": "桥梁伸缩缝附近",
+      "lnglat": {
+        "lng": 109.376,
+        "lat": 24.312
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+[
+    {
+        "index": 0,
+        "input_text": "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5\u5b58\u5728\u8f7b\u5fae\u4e0d\u5747\u5300\u6c89\u964d\u8ff9\u8c61\uff0c\u8f66\u8f86\u901a\u8fc7\u65f6\u6709\u8f7b\u5fae\u98a0\u7c38\u3002\n\u73b0\u573a\u68c0\u67e5\u53d1\u73b0\u642d\u677f\u63a5\u7f1d\u5904\u72b6\u6001\u4e00\u822c\uff0c\u6682\u672a\u89e6\u53d1\u9ad8\u98ce\u9669\u544a\u8b66\uff0c\u4f46\u9700\u8981\u6301\u7eed\u89c2\u6d4b\u3002",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u5b58\u5728",
+                "\u8f7b\u5fae\u4e0d\u5747\u5300\u6c89\u964d\u8ff9\u8c61"
+            ],
+            [
+                "\u8f66\u8f86\u901a\u8fc7\u65f6",
+                "\u6709",
+                "\u8f7b\u5fae\u98a0\u7c38"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u72b6\u6001",
+                "\u4e00\u822c"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u672a\u89e6\u53d1",
+                "\u9ad8\u98ce\u9669\u544a\u8b66"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u9700\u8981",
+                "\u6301\u7eed\u89c2\u6d4b"
+            ]
+        ],
+        "schema_definition": {
+            "\u5b58\u5728": "\u4e3b\u8bed\u5b9e\u4f53\u5177\u6709\u3001\u8868\u73b0\u51fa\u6216\u5305\u542b\u5bbe\u8bed\u6240\u8868\u793a\u7684\u73b0\u8c61\u3001\u7279\u5f81\u6216\u6761\u4ef6\u3002",
+            "\u6709": "\u4e3b\u8bed\u8868\u73b0\u51fa\u6216\u53d1\u751f\u5bbe\u8bed\u6240\u63cf\u8ff0\u7684\u73b0\u8c61\u6216\u72b6\u6001\u3002",
+            "\u72b6\u6001": "\u5bbe\u8bed\u63cf\u8ff0\u4e3b\u8bed\u5f53\u524d\u7684\u72b6\u51b5\u3001\u5de5\u51b5\u6216\u5c5e\u6027\u7279\u5f81\u3002",
+            "\u672a\u89e6\u53d1": "\u4e3b\u8bed\u672a\u8fbe\u5230\u5f15\u53d1\u5bbe\u8bed\uff08\u5982\u544a\u8b66\u3001\u673a\u5236\u6216\u4e8b\u4ef6\uff09\u542f\u52a8\u6216\u53d1\u751f\u7684\u6761\u4ef6\u3002",
+            "\u9700\u8981": "\u4e3b\u8bed\u5b9e\u4f53\u8981\u6c42\u6216\u5e94\u5f53\u91c7\u53d6\u5bbe\u8bed\u6240\u8868\u793a\u7684\u63aa\u65bd\u3001\u884c\u52a8\u6216\u540e\u7eed\u5904\u7406\u3002"
+        },
+        "canonicalization_candidates": "[{'contains administrative territorial entity': np.float32(0.5419605), 'located in the administrative territorial entity': np.float32(0.50545645), 'start time': np.float32(0.4769204), 'contains settlement': np.float32(0.4578768), 'date of birth': np.float32(0.41760552)}, {'\u5b58\u5728': np.float32(0.85929), 'located in the administrative territorial entity': np.float32(0.40953296), 'contains administrative territorial entity': np.float32(0.40831226), 'start time': np.float32(0.40033567), 'contains settlement': np.float32(0.35800594)}, {'\u5b58\u5728': np.float32(0.73853517), 'contains administrative territorial entity': np.float32(0.3871606), 'located in the administrative territorial entity': np.float32(0.38317436), 'start time': np.float32(0.37621754), 'contains settlement': np.float32(0.3532033)}, {'\u5b58\u5728': np.float32(0.5431603), '\u72b6\u6001': np.float32(0.4798818), 'start time': np.float32(0.41534004), 'contains administrative territorial entity': np.float32(0.33959243), 'contains settlement': np.float32(0.32735306)}, {'\u5b58\u5728': np.float32(0.72921586), '\u72b6\u6001': np.float32(0.6139685), '\u672a\u89e6\u53d1': np.float32(0.5968832), 'contains administrative territorial entity': np.float32(0.5345025), 'start time': np.float32(0.5180869)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u5b58\u5728",
+                "\u8f7b\u5fae\u4e0d\u5747\u5300\u6c89\u964d\u8ff9\u8c61"
+            ],
+            [
+                "\u8f66\u8f86\u901a\u8fc7\u65f6",
+                "\u5b58\u5728",
+                "\u8f7b\u5fae\u98a0\u7c38"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u72b6\u6001",
+                "\u4e00\u822c"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u672a\u89e6\u53d1",
+                "\u9ad8\u98ce\u9669\u544a\u8b66"
+            ],
+            [
+                "\u642d\u677f\u63a5\u7f1d\u5904",
+                "\u9700\u8981",
+                "\u6301\u7eed\u89c2\u6d4b"
+            ]
+        ]
+    }
+]

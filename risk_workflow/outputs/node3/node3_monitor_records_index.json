@@ -1,0 +1,79 @@
+[
+  {
+    "file": "BR-BY01_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_1_BR-BY01_monitor_01_20260423_143811",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-HZ07_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_2_BR-HZ07_monitor_01_20260423_144322",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-LZ02_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_3_BR-LZ02_monitor_01_20260423_144712",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-QS09_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_4_BR-QS09_monitor_01_20260423_145114",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "EX-BR-001_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_5_EX-BR-001_monitor_01_20260423_145455",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "EX-SL-001_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_6_EX-SL-001_monitor_01_20260423_145814",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "EX-SL-002_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_7_EX-SL-002_monitor_01_20260423_150156",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "SL-BH02_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_8_SL-BH02_monitor_01_20260423_150444",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "SL-GZ01_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_9_SL-GZ01_monitor_01_20260423_150749",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "SL-HC03_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_10_SL-HC03_monitor_01_20260423_151316",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "SP-LB13_monitor_01.txt",
+    "status": "failed",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_11_SP-LB13_monitor_01_20260423_151529",
+    "triplet_groups": 0,
+    "error": "[Errno 2] No such file or directory: 'risk_workflow\\\\outputs\\\\node3\\\\node3_monitor_records_11_SP-LB13_monitor_01_20260423_151529/iter0/result_at_each_stage.json'"
+  }
+]
