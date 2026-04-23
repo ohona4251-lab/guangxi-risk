@@ -1,0 +1,103 @@
+[
+    {
+        "index": 0,
+        "input_text": "\u7ea2\u5149\u5927\u6865\u4e3b\u6865\u5173\u952e\u622a\u9762\uff1a\u7ad6\u5411\u4f4d\u79fb 22mm\uff0c\u8f83\u4e0a\u4e00\u5468\u671f\u4e0a\u5347 6mm\n\u6865\u5934\u63a5\u7f1d\u5904\uff1a\u9519\u53f0\u9ad8\u5dee 18mm\uff0c\u632f\u52a8\u5cf0\u503c 0.42g\n\u4e3b\u6881\u6320\u5ea6\u8ba1 M-HZ07-01\uff1a\u8de8\u4e2d\u6320\u5ea6 28mm\uff0c\u65e5\u53d8\u5316\u5e45\u5ea6 5mm\n\u7d22\u529b\u4f20\u611f\u5668 M-HZ07-02\uff1a\u7d22\u529b\u504f\u5dee 7.5%\uff0c\u91c7\u6837\u9891\u7387 10Hz",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u7ea2\u5149\u5927\u6865\u4e3b\u6865\u5173\u952e\u622a\u9762",
+                "\u7ad6\u5411\u4f4d\u79fb",
+                "22mm"
+            ],
+            [
+                "\u7ea2\u5149\u5927\u6865\u4e3b\u6865\u5173\u952e\u622a\u9762",
+                "\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316",
+                "\u4e0a\u53476mm"
+            ],
+            [
+                "\u6865\u5934\u63a5\u7f1d\u5904",
+                "\u9519\u53f0\u9ad8\u5dee",
+                "18mm"
+            ],
+            [
+                "\u6865\u5934\u63a5\u7f1d\u5904",
+                "\u632f\u52a8\u5cf0\u503c",
+                "0.42g"
+            ],
+            [
+                "\u4e3b\u6881\u6320\u5ea6\u8ba1 M-HZ07-01",
+                "\u8de8\u4e2d\u6320\u5ea6",
+                "28mm"
+            ],
+            [
+                "\u4e3b\u6881\u6320\u5ea6\u8ba1 M-HZ07-01",
+                "\u65e5\u53d8\u5316\u5e45\u5ea6",
+                "5mm"
+            ],
+            [
+                "\u7d22\u529b\u4f20\u611f\u5668 M-HZ07-02",
+                "\u7d22\u529b\u504f\u5dee",
+                "7.5%"
+            ],
+            [
+                "\u7d22\u529b\u4f20\u611f\u5668 M-HZ07-02",
+                "\u91c7\u6837\u9891\u7387",
+                "10Hz"
+            ]
+        ],
+        "schema_definition": {
+            "\u7ad6\u5411\u4f4d\u79fb": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5728\u5782\u76f4\u65b9\u5411\u4e0a\u7684\u4f4d\u7f6e\u504f\u79fb\u91cf\u6216\u53d8\u5f62\u503c\u3002",
+            "\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u7ad6\u5411\u4f4d\u79fb\u76f8\u8f83\u4e8e\u57fa\u51c6\u6216\u4e0a\u4e00\u5468\u671f\u7684\u6539\u53d8\u91cf\u53ca\u8d8b\u52bf\u3002",
+            "\u9519\u53f0\u9ad8\u5dee": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\uff08\u5982\u63a5\u7f1d\u6216\u8fde\u63a5\u5904\uff09\u4e24\u4fa7\u7ed3\u6784\u4ea7\u751f\u7684\u9ad8\u5ea6\u5dee\u503c\u3002",
+            "\u632f\u52a8\u5cf0\u503c": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5728\u632f\u52a8\u8fc7\u7a0b\u4e2d\u8bb0\u5f55\u5230\u7684\u6700\u5927\u5e45\u503c\u6216\u5f3a\u5ea6\u3002",
+            "\u8de8\u4e2d\u6320\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\uff08\u5982\u6881\u4f53\u8de8\u4e2d\u4f4d\u7f6e\uff09\u5728\u53d7\u529b\u540e\u4ea7\u751f\u7684\u5782\u76f4\u5f2f\u66f2\u53d8\u5f62\u91cf\u3002",
+            "\u65e5\u53d8\u5316\u5e45\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u67d0\u9879\u76d1\u6d4b\u6307\u6807\u5728\u4e00\u5929\u65f6\u95f4\u5185\u7684\u6700\u5927\u6ce2\u52a8\u8303\u56f4\u6216\u53d8\u5316\u91cf\u3002",
+            "\u7d22\u529b\u504f\u5dee": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5b9e\u9645\u53d7\u529b\u503c\u4e0e\u6807\u51c6\u6216\u8bbe\u8ba1\u503c\u4e4b\u95f4\u7684\u5dee\u5f02\u6bd4\u4f8b\u3002",
+            "\u91c7\u6837\u9891\u7387": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\uff08\u5982\u4f20\u611f\u5668\u6216\u91c7\u96c6\u8bbe\u5907\uff09\u5355\u4f4d\u65f6\u95f4\u5185\u8fdb\u884c\u6570\u636e\u91c7\u6837\u7684\u6b21\u6570\u3002"
+        },
+        "canonicalization_candidates": "[{'start time': np.float32(0.4383723), 'contains settlement': np.float32(0.42624873), 'contains administrative territorial entity': np.float32(0.42269826), 'located in the administrative territorial entity': np.float32(0.42228246), 'country': np.float32(0.38702106)}, {'\u7ad6\u5411\u4f4d\u79fb': np.float32(0.87746096), 'start time': np.float32(0.45007038), 'contains settlement': np.float32(0.4465583), 'contains administrative territorial entity': np.float32(0.41879022), 'located in the administrative territorial entity': np.float32(0.39960945)}, {'\u7ad6\u5411\u4f4d\u79fb': np.float32(0.86579025), '\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.8059051), 'contains settlement': np.float32(0.43257928), 'contains administrative territorial entity': np.float32(0.41893956), 'start time': np.float32(0.40013295)}, {'\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.7751222), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7572349), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.7554114), 'start time': np.float32(0.38355097), 'contains settlement': np.float32(0.36529875)}, {'\u7ad6\u5411\u4f4d\u79fb': np.float32(0.7786051), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7604499), '\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.73079735), '\u632f\u52a8\u5cf0\u503c': np.float32(0.71396875), 'start time': np.float32(0.3577292)}, {'\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.8323618), '\u632f\u52a8\u5cf0\u503c': np.float32(0.8103391), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.7559054), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7523996), 'contains settlement': np.float32(0.42290014)}, {'\u9519\u53f0\u9ad8\u5dee': np.float32(0.81866395), '\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.79748696), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.7901409), '\u632f\u52a8\u5cf0\u503c': np.float32(0.78386796), '\u65e5\u53d8\u5316\u5e45\u5ea6': np.float32(0.7831892)}, {'\u65e5\u53d8\u5316\u5e45\u5ea6': np.float32(0.75806606), '\u632f\u52a8\u5cf0\u503c': np.float32(0.7343913), '\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316': np.float32(0.7182183), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.6851084), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.67772734)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u7ea2\u5149\u5927\u6865\u4e3b\u6865\u5173\u952e\u622a\u9762",
+                "\u7ad6\u5411\u4f4d\u79fb",
+                "22mm"
+            ],
+            [
+                "\u7ea2\u5149\u5927\u6865\u4e3b\u6865\u5173\u952e\u622a\u9762",
+                "\u7ad6\u5411\u4f4d\u79fb\u53d8\u5316",
+                "\u4e0a\u53476mm"
+            ],
+            [
+                "\u6865\u5934\u63a5\u7f1d\u5904",
+                "\u9519\u53f0\u9ad8\u5dee",
+                "18mm"
+            ],
+            [
+                "\u6865\u5934\u63a5\u7f1d\u5904",
+                "\u632f\u52a8\u5cf0\u503c",
+                "0.42g"
+            ],
+            [
+                "\u4e3b\u6881\u6320\u5ea6\u8ba1 M-HZ07-01",
+                "\u7ad6\u5411\u4f4d\u79fb",
+                "28mm"
+            ],
+            [
+                "\u4e3b\u6881\u6320\u5ea6\u8ba1 M-HZ07-01",
+                "\u65e5\u53d8\u5316\u5e45\u5ea6",
+                "5mm"
+            ],
+            [
+                "\u7d22\u529b\u4f20\u611f\u5668 M-HZ07-02",
+                "\u7d22\u529b\u504f\u5dee",
+                "7.5%"
+            ],
+            [
+                "\u7d22\u529b\u4f20\u611f\u5668 M-HZ07-02",
+                "\u91c7\u6837\u9891\u7387",
+                "10Hz"
+            ]
+        ]
+    }
+]

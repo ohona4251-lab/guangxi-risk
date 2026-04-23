@@ -1,0 +1,68 @@
+[
+    {
+        "index": 0,
+        "input_text": "\ufeff\u5c71\u533a\u9ad8\u901f\u96a7\u9053\u8fdb\u53e3\u8fb9\u4ef0\u5761\u5728\u66b4\u96e8\u540e\u53d1\u73b0\u6ce5\u6c34\u5916\u6ea2\uff0c\u6d1e\u53e3\u622a\u6c34\u6c9f\u6de4\u79ef\u4e25\u91cd\u3002\n\u73b0\u573a\u6392\u67e5\u53d1\u73b0\u5761\u9762\u690d\u88ab\u7834\u574f\uff0c\u5c40\u90e8\u6709\u6ed1\u584c\u8ff9\u8c61\uff0c\u5b58\u5728\u6b21\u751f\u707e\u5bb3\u98ce\u9669\u3002",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u8fb9\u4ef0\u5761",
+                "\u51fa\u73b0",
+                "\u6ce5\u6c34\u5916\u6ea2"
+            ],
+            [
+                "\u6d1e\u53e3\u622a\u6c34\u6c9f",
+                "\u72b6\u6001",
+                "\u6de4\u79ef\u4e25\u91cd"
+            ],
+            [
+                "\u5761\u9762\u690d\u88ab",
+                "\u72b6\u6001",
+                "\u7834\u574f"
+            ],
+            [
+                "\u5761\u9762",
+                "\u5b58\u5728",
+                "\u6ed1\u584c\u8ff9\u8c61"
+            ],
+            [
+                "\u8fb9\u4ef0\u5761",
+                "\u5b58\u5728",
+                "\u6b21\u751f\u707e\u5bb3\u98ce\u9669"
+            ]
+        ],
+        "schema_definition": {
+            "\u51fa\u73b0": "\u4e3b\u8bed\u5b9e\u4f53\u663e\u73b0\u3001\u53d1\u751f\u6216\u4ea7\u751f\u4e86\u5bbe\u8bed\u6240\u8868\u793a\u7684\u73b0\u8c61\u3001\u4e8b\u4ef6\u6216\u5bf9\u8c61\u3002",
+            "\u72b6\u6001": "\u5bbe\u8bed\u63cf\u8ff0\u4e3b\u8bed\u5b9e\u4f53\u5f53\u524d\u6240\u5904\u7684\u72b6\u51b5\u3001\u5de5\u51b5\u6216\u7279\u5f81\u3002",
+            "\u5b58\u5728": "\u4e3b\u8bed\u5b9e\u4f53\u5177\u6709\u3001\u5305\u542b\u6216\u6b63\u9762\u4e34\u5bbe\u8bed\u6240\u8868\u793a\u7684\u73b0\u8c61\u3001\u8ff9\u8c61\u3001\u98ce\u9669\u6216\u5c5e\u6027\u3002"
+        },
+        "canonicalization_candidates": "[{'contains administrative territorial entity': np.float32(0.5155299), 'start time': np.float32(0.5134234), 'located in the administrative territorial entity': np.float32(0.4982487), 'contains settlement': np.float32(0.472888), 'date of birth': np.float32(0.4543501)}, {'\u51fa\u73b0': np.float32(0.7390902), 'contains administrative territorial entity': np.float32(0.4396636), 'located in the administrative territorial entity': np.float32(0.43739742), 'start time': np.float32(0.42413646), 'contains settlement': np.float32(0.40336132)}, {}, {'\u51fa\u73b0': np.float32(0.83339465), '\u72b6\u6001': np.float32(0.7111643), 'contains administrative territorial entity': np.float32(0.5731319), 'start time': np.float32(0.52304024), 'located in the administrative territorial entity': np.float32(0.51426184)}, {'\u51fa\u73b0': np.float32(0.83339465), '\u72b6\u6001': np.float32(0.7111643), 'contains administrative territorial entity': np.float32(0.5731319), 'start time': np.float32(0.52304024), 'located in the administrative territorial entity': np.float32(0.51426184)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u8fb9\u4ef0\u5761",
+                "\u51fa\u73b0",
+                "\u6ce5\u6c34\u5916\u6ea2"
+            ],
+            [
+                "\u6d1e\u53e3\u622a\u6c34\u6c9f",
+                "\u72b6\u6001",
+                "\u6de4\u79ef\u4e25\u91cd"
+            ],
+            [
+                "\u5761\u9762\u690d\u88ab",
+                "\u72b6\u6001",
+                "\u7834\u574f"
+            ],
+            [
+                "\u5761\u9762",
+                "\u51fa\u73b0",
+                "\u6ed1\u584c\u8ff9\u8c61"
+            ],
+            [
+                "\u8fb9\u4ef0\u5761",
+                "\u5b58\u5728",
+                "\u6b21\u751f\u707e\u5bb3\u98ce\u9669"
+            ]
+        ]
+    }
+]

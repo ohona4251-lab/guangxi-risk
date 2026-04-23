@@ -1,0 +1,35 @@
+{
+  "point_id": "SP-LB13",
+  "point_name": "城北1号桥",
+  "subject_type": "桥梁",
+  "hazard_type": "桥梁一般病害",
+  "risk_level": "III级",
+  "risk_class": "risk-iii",
+  "score": 3,
+  "grading_basis": {
+    "matched_facts": [],
+    "matched_evidence": [
+      "文本命中关键词：明显",
+      "文本命中关键词：裂缝",
+      "文本命中关键词：轻微、局部、关注",
+      "文本包含稳定或低风险状态描述"
+    ],
+    "matched_rules": [
+      {
+        "hazard_type": "桥梁一般病害",
+        "judgement_basis": "按知识图谱中异常现象和监测事实进行判定。",
+        "grading_rule": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。"
+      }
+    ],
+    "kg_sources": {
+      "inspection_paths": [
+        "risk_workflow\\outputs\\node2\\front_inspection_records_9_bridge_sp_lb13_record1_20260423_144901\\iter0\\canon_kg.txt",
+        "risk_workflow\\outputs\\node2\\front_inspection_records_10_bridge_sp_lb13_record2_20260423_145224\\iter0\\canon_kg.txt"
+      ],
+      "monitor_paths": [],
+      "triple_count": 10
+    }
+  },
+  "explanation": "城北1号桥主体分类为桥梁，识别的主要隐患类型为桥梁一般病害。知识图谱和文本证据显示：文本命中关键词：明显；文本命中关键词：裂缝；文本命中关键词：轻微、局部、关注；文本包含稳定或低风险状态描述。依据分级规则和异常程度综合评分为3，判定为III级风险。",
+  "suggestion": "建议纳入跟踪观察，按周期复测关键指标。"
+}

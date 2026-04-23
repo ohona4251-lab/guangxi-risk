@@ -1,0 +1,88 @@
+{
+  "point_id": "BR-QS09",
+  "point_name": "青秀互通道桥",
+  "subject_type": "桥梁",
+  "hazard_type": "桥梁伸缩缝及桥面病害",
+  "risk_level": "IV级",
+  "risk_class": "risk-iv",
+  "score": 0,
+  "summary": "青秀互通道桥当前判定为IV级风险，主要隐患类型为桥梁伸缩缝及桥面病害。",
+  "grading_basis": {
+    "matched_facts": [
+      {
+        "field": "桥面横向位移",
+        "value": 2.0,
+        "unit": "mm",
+        "raw": "桥面横向位移 2mm"
+      },
+      {
+        "field": "竖向位移",
+        "value": 1.0,
+        "unit": "mm",
+        "raw": "竖向位移 1mm"
+      },
+      {
+        "field": "泄水孔通畅率",
+        "value": 100.0,
+        "unit": "%",
+        "raw": "泄水孔通畅率 100%"
+      },
+      {
+        "field": "积水深度",
+        "value": 0.0,
+        "unit": "mm",
+        "raw": "积水深度 0mm"
+      },
+      {
+        "field": "磨耗深度",
+        "value": 1.5,
+        "unit": "mm",
+        "raw": "磨耗深度 1.5mm"
+      },
+      {
+        "field": "测量长度",
+        "value": 2.0,
+        "unit": "m",
+        "raw": "测量长度 2m"
+      },
+      {
+        "field": "护栏偏移",
+        "value": 0.0,
+        "unit": "mm",
+        "raw": "护栏偏移 0mm"
+      }
+    ],
+    "matched_evidence": [
+      "文本命中关键词：位移",
+      "文本命中关键词：轻微、局部",
+      "文本包含稳定或低风险状态描述"
+    ],
+    "process_steps": [
+      "主体分类：根据点位类型和编号识别为桥梁。",
+      "图谱融合：合并巡检知识图谱、监测知识图谱和原始文本，共获得19条去重三元组。",
+      "隐患识别：从图谱实体、关系和文本关键词中识别主要隐患类型为桥梁伸缩缝及桥面病害。",
+      "事实抽取：抽取位移、裂缝、错台、堆积厚度等可量化事实7项。",
+      "规则匹配：结合分级规则中的灾害判断依据、风险分级规则和异常发展描述进行匹配。",
+      "等级计算：异常程度综合评分为0，映射为IV级风险。"
+    ],
+    "matched_rules": [
+      {
+        "hazard_type": "桥梁伸缩缝及桥面病害",
+        "judgement_basis": "按知识图谱中异常现象和监测事实进行判定。",
+        "grading_rule": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。"
+      }
+    ],
+    "kg_sources": {
+      "inspection_paths": [
+        "risk_workflow\\outputs\\node2\\front_inspection_records_7_bridge_br_qs09_record1_20260423_144222\\iter0\\canon_kg.txt",
+        "risk_workflow\\outputs\\node2\\front_inspection_records_8_bridge_br_qs09_record2_20260423_144455\\iter0\\canon_kg.txt"
+      ],
+      "monitor_paths": [
+        "risk_workflow\\outputs\\node3\\node3_monitor_records_new_4_BR-QS09_monitor_01_20260423_160747\\iter0\\canon_kg.txt"
+      ],
+      "triple_count": 19
+    }
+  },
+  "explanation": "青秀互通道桥当前判定为IV级风险，主要隐患类型为桥梁伸缩缝及桥面病害。判断过程为：主体分类：根据点位类型和编号识别为桥梁。；图谱融合：合并巡检知识图谱、监测知识图谱和原始文本，共获得19条去重三元组。；隐患识别：从图谱实体、关系和文本关键词中识别主要隐患类型为桥梁伸缩缝及桥面病害。；事实抽取：抽取位移、裂缝、错台、堆积厚度等可量化事实7项。；规则匹配：结合分级规则中的灾害判断依据、风险分级规则和异常发展描述进行匹配。；等级计算：异常程度综合评分为0，映射为IV级风险。主要证据包括：文本命中关键词：位移；文本命中关键词：轻微、局部；文本包含稳定或低风险状态描述。",
+  "suggestion": "建议维持常规巡检和例行监测。"
+}

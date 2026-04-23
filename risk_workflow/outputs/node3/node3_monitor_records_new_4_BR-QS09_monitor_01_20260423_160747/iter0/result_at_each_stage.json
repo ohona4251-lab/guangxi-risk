@@ -1,0 +1,103 @@
+[
+    {
+        "index": 0,
+        "input_text": "\u9752\u79c0\u4e92\u901a\u9053\u6865\uff1a\u6865\u9762\u6a2a\u5411\u4f4d\u79fb 2mm\uff0c\u7ad6\u5411\u4f4d\u79fb 1mm\n\u6392\u6c34\uff1a\u6cc4\u6c34\u5b54\u901a\u7545\u7387 100%\uff0c\u79ef\u6c34\u6df1\u5ea6 0mm\n\u6865\u9762\u78e8\u8017\u6d4b\u70b9 M-QS09-01\uff1a\u78e8\u8017\u6df1\u5ea6 1.5mm\uff0c\u6d4b\u91cf\u957f\u5ea6 2m\n\u62a4\u680f\u4f4d\u79fb\u8ba1 M-QS09-02\uff1a\u62a4\u680f\u504f\u79fb 0mm\uff0c\u87ba\u6813\u677e\u52a8\u6570 0",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u9752\u79c0\u4e92\u901a\u9053\u6865",
+                "\u6865\u9762\u6a2a\u5411\u4f4d\u79fb",
+                "2mm"
+            ],
+            [
+                "\u9752\u79c0\u4e92\u901a\u9053\u6865",
+                "\u7ad6\u5411\u4f4d\u79fb",
+                "1mm"
+            ],
+            [
+                "\u6392\u6c34",
+                "\u6cc4\u6c34\u5b54\u901a\u7545\u7387",
+                "100%"
+            ],
+            [
+                "\u6392\u6c34",
+                "\u79ef\u6c34\u6df1\u5ea6",
+                "0mm"
+            ],
+            [
+                "\u6865\u9762\u78e8\u8017\u6d4b\u70b9 M-QS09-01",
+                "\u78e8\u8017\u6df1\u5ea6",
+                "1.5mm"
+            ],
+            [
+                "\u6865\u9762\u78e8\u8017\u6d4b\u70b9 M-QS09-01",
+                "\u6d4b\u91cf\u957f\u5ea6",
+                "2m"
+            ],
+            [
+                "\u62a4\u680f\u4f4d\u79fb\u8ba1 M-QS09-02",
+                "\u62a4\u680f\u504f\u79fb",
+                "0mm"
+            ],
+            [
+                "\u62a4\u680f\u4f4d\u79fb\u8ba1 M-QS09-02",
+                "\u87ba\u6813\u677e\u52a8\u6570",
+                "0"
+            ]
+        ],
+        "schema_definition": {
+            "\u6865\u9762\u6a2a\u5411\u4f4d\u79fb": "\u8868\u793a\u4e3b\u8bed\u7ed3\u6784\u7269\u5728\u6c34\u5e73\u6a2a\u5411\u65b9\u5411\u4e0a\u7684\u4f4d\u7f6e\u53d8\u52a8\u7a0b\u5ea6\uff0c\u5bbe\u8bed\u4e3a\u8be5\u53d8\u52a8\u91cf\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u7ad6\u5411\u4f4d\u79fb": "\u8868\u793a\u4e3b\u8bed\u7ed3\u6784\u7269\u5728\u5782\u76f4\u65b9\u5411\u4e0a\u7684\u4f4d\u7f6e\u53d8\u52a8\u7a0b\u5ea6\uff0c\u5bbe\u8bed\u4e3a\u8be5\u53d8\u52a8\u91cf\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u6cc4\u6c34\u5b54\u901a\u7545\u7387": "\u8868\u793a\u4e3b\u8bed\u6392\u6c34\u8bbe\u65bd\u4e2d\u6cc4\u6c34\u5b54\u4fdd\u6301\u7545\u901a\u72b6\u6001\u7684\u6bd4\u4f8b\uff0c\u5bbe\u8bed\u4e3a\u8be5\u6bd4\u4f8b\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u79ef\u6c34\u6df1\u5ea6": "\u8868\u793a\u4e3b\u8bed\u533a\u57df\u6216\u8868\u9762\u56e0\u6392\u6c34\u4e0d\u7545\u7b49\u539f\u56e0\u79ef\u805a\u7684\u6c34\u4f53\u5782\u76f4\u9ad8\u5ea6\uff0c\u5bbe\u8bed\u4e3a\u8be5\u9ad8\u5ea6\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u78e8\u8017\u6df1\u5ea6": "\u8868\u793a\u4e3b\u8bed\u8868\u9762\u56e0\u6469\u64e6\u6216\u957f\u671f\u4f7f\u7528\u5bfc\u81f4\u7684\u6750\u6599\u635f\u8017\u7a0b\u5ea6\uff0c\u5bbe\u8bed\u4e3a\u8be5\u635f\u8017\u6df1\u5ea6\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u6d4b\u91cf\u957f\u5ea6": "\u8868\u793a\u5bf9\u4e3b\u8bed\u5b9e\u4f53\u8fdb\u884c\u76d1\u6d4b\u6216\u8bc4\u4f30\u65f6\u6240\u8986\u76d6\u7684\u57fa\u51c6\u8ddd\u79bb\u6216\u8303\u56f4\uff0c\u5bbe\u8bed\u4e3a\u8be5\u957f\u5ea6\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u62a4\u680f\u504f\u79fb": "\u8868\u793a\u4e3b\u8bed\u62a4\u680f\u7ed3\u6784\u76f8\u5bf9\u4e8e\u539f\u59cb\u8bbe\u8ba1\u4f4d\u7f6e\u53d1\u751f\u7684\u504f\u79bb\u7a0b\u5ea6\uff0c\u5bbe\u8bed\u4e3a\u8be5\u504f\u79bb\u91cf\u7684\u5177\u4f53\u6570\u503c\u3002",
+            "\u87ba\u6813\u677e\u52a8\u6570": "\u8868\u793a\u4e3b\u8bed\u8fde\u63a5\u90e8\u4f4d\u4e2d\u5904\u4e8e\u975e\u7d27\u56fa\u72b6\u6001\u7684\u87ba\u6813\u6570\u91cf\uff0c\u5bbe\u8bed\u4e3a\u8be5\u6570\u91cf\u7684\u5177\u4f53\u6570\u503c\u3002"
+        },
+        "canonicalization_candidates": "[{'contains settlement': np.float32(0.44100153), 'located in the administrative territorial entity': np.float32(0.43264395), 'contains administrative territorial entity': np.float32(0.427753), 'start time': np.float32(0.4183973), 'student': np.float32(0.37560397)}, {'\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.9669235), 'contains settlement': np.float32(0.42676216), 'contains administrative territorial entity': np.float32(0.4196797), 'located in the administrative territorial entity': np.float32(0.41647673), 'start time': np.float32(0.40288174)}, {'\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.6022198), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.59763), 'contains settlement': np.float32(0.36662957), 'contains administrative territorial entity': np.float32(0.36660412), 'start time': np.float32(0.33545214)}, {'\u6cc4\u6c34\u5b54\u901a\u7545\u7387': np.float32(0.70605266), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.69895506), '\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.64809346), 'contains administrative territorial entity': np.float32(0.3776335), 'contains settlement': np.float32(0.36051685)}, {'\u79ef\u6c34\u6df1\u5ea6': np.float32(0.61574525), '\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.6153472), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.61337614), '\u6cc4\u6c34\u5b54\u901a\u7545\u7387': np.float32(0.5685258), 'contains administrative territorial entity': np.float32(0.34684342)}, {'\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.62007606), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.61178863), '\u78e8\u8017\u6df1\u5ea6': np.float32(0.6085618), '\u79ef\u6c34\u6df1\u5ea6': np.float32(0.5951305), '\u6cc4\u6c34\u5b54\u901a\u7545\u7387': np.float32(0.5590241)}, {'\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.73420936), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.71524274), '\u6d4b\u91cf\u957f\u5ea6': np.float32(0.6224507), '\u6cc4\u6c34\u5b54\u901a\u7545\u7387': np.float32(0.60418874), '\u78e8\u8017\u6df1\u5ea6': np.float32(0.57968366)}, {'\u6865\u9762\u6a2a\u5411\u4f4d\u79fb': np.float32(0.64900297), '\u7ad6\u5411\u4f4d\u79fb': np.float32(0.63821304), '\u6cc4\u6c34\u5b54\u901a\u7545\u7387': np.float32(0.6306025), '\u62a4\u680f\u504f\u79fb': np.float32(0.6032862), '\u78e8\u8017\u6df1\u5ea6': np.float32(0.58143425)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u9752\u79c0\u4e92\u901a\u9053\u6865",
+                "\u6865\u9762\u6a2a\u5411\u4f4d\u79fb",
+                "2mm"
+            ],
+            [
+                "\u9752\u79c0\u4e92\u901a\u9053\u6865",
+                "\u7ad6\u5411\u4f4d\u79fb",
+                "1mm"
+            ],
+            [
+                "\u6392\u6c34",
+                "\u6cc4\u6c34\u5b54\u901a\u7545\u7387",
+                "100%"
+            ],
+            [
+                "\u6392\u6c34",
+                "\u79ef\u6c34\u6df1\u5ea6",
+                "0mm"
+            ],
+            [
+                "\u6865\u9762\u78e8\u8017\u6d4b\u70b9 M-QS09-01",
+                "\u78e8\u8017\u6df1\u5ea6",
+                "1.5mm"
+            ],
+            [
+                "\u6865\u9762\u78e8\u8017\u6d4b\u70b9 M-QS09-01",
+                "\u6d4b\u91cf\u957f\u5ea6",
+                "2m"
+            ],
+            [
+                "\u62a4\u680f\u4f4d\u79fb\u8ba1 M-QS09-02",
+                "\u62a4\u680f\u504f\u79fb",
+                "0mm"
+            ],
+            [
+                "\u62a4\u680f\u4f4d\u79fb\u8ba1 M-QS09-02",
+                "\u87ba\u6813\u677e\u52a8\u6570",
+                "0"
+            ]
+        ]
+    }
+]

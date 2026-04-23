@@ -1,0 +1,103 @@
+[
+    {
+        "index": 0,
+        "input_text": "\u67f3\u6c5f\u4e8c\u6865\u6865\u9762\u5c40\u90e8\u94fa\u88c5\uff1a\u677e\u6563\u9762\u79ef 1.8m2\uff0c\u5265\u843d\u6df1\u5ea6 8mm\n\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5\uff1a\u4e0d\u5747\u5300\u6c89\u964d 9mm\uff0c\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee 7mm\n\u94fa\u88c5\u6e29\u5ea6\u8ba1 M-LZ02-01\uff1a\u6865\u9762\u6e29\u5ea6 34.6\u2103\uff0c\u663c\u591c\u6e29\u5dee 8.2\u2103\n\u6c89\u964d\u89c2\u6d4b\u70b9 M-LZ02-02\uff1a\u7d2f\u8ba1\u6c89\u964d 11mm\uff0c\u8f83\u4e0a\u4e00\u5468\u671f\u589e\u52a0 2mm",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u9762\u5c40\u90e8\u94fa\u88c5",
+                "\u677e\u6563\u9762\u79ef",
+                "1.8m2"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u9762\u5c40\u90e8\u94fa\u88c5",
+                "\u5265\u843d\u6df1\u5ea6",
+                "8mm"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u4e0d\u5747\u5300\u6c89\u964d",
+                "9mm"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee",
+                "7mm"
+            ],
+            [
+                "\u94fa\u88c5\u6e29\u5ea6\u8ba1 M-LZ02-01",
+                "\u6865\u9762\u6e29\u5ea6",
+                "34.6\u2103"
+            ],
+            [
+                "\u94fa\u88c5\u6e29\u5ea6\u8ba1 M-LZ02-01",
+                "\u663c\u591c\u6e29\u5dee",
+                "8.2\u2103"
+            ],
+            [
+                "\u6c89\u964d\u89c2\u6d4b\u70b9 M-LZ02-02",
+                "\u7d2f\u8ba1\u6c89\u964d",
+                "11mm"
+            ],
+            [
+                "\u6c89\u964d\u89c2\u6d4b\u70b9 M-LZ02-02",
+                "\u8f83\u4e0a\u4e00\u5468\u671f\u589e\u52a0",
+                "2mm"
+            ]
+        ],
+        "schema_definition": {
+            "\u677e\u6563\u9762\u79ef": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u8868\u9762\u6216\u5c40\u90e8\u533a\u57df\u51fa\u73b0\u677e\u6563\u3001\u8131\u7a7a\u7b49\u75c5\u5bb3\u73b0\u8c61\u7684\u5177\u4f53\u9762\u79ef\u6570\u503c\u3002",
+            "\u5265\u843d\u6df1\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u8868\u9762\u53d1\u751f\u6750\u6599\u5265\u843d\u3001\u7834\u635f\u6216\u7f3a\u5931\u7684\u5782\u76f4\u6df1\u5ea6\u6570\u503c\u3002",
+            "\u4e0d\u5747\u5300\u6c89\u964d": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u4e0d\u540c\u90e8\u4f4d\u4e4b\u95f4\u53d1\u751f\u7684\u975e\u5747\u5300\u5782\u76f4\u4e0b\u6c89\u4f4d\u79fb\u91cf\u6216\u5dee\u503c\u3002",
+            "\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u7279\u5b9a\u63a5\u7f1d\u6216\u8fde\u63a5\u90e8\u4f4d\u4e24\u4fa7\u5b58\u5728\u7684\u5782\u76f4\u9ad8\u5ea6\u5dee\u503c\u3002",
+            "\u6865\u9762\u6e29\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\uff08\u76d1\u6d4b\u4f4d\u7f6e\u6216\u8bbe\u5907\uff09\u6240\u6d4b\u5f97\u6216\u5bf9\u5e94\u7684\u6865\u9762\u8868\u9762\u6e29\u5ea6\u6570\u503c\u3002",
+            "\u663c\u591c\u6e29\u5dee": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u6240\u5728\u533a\u57df\u6216\u76d1\u6d4b\u5bf9\u8c61\u5728\u4e00\u5929\u5185\u6700\u9ad8\u6e29\u5ea6\u4e0e\u6700\u4f4e\u6e29\u5ea6\u4e4b\u95f4\u7684\u5dee\u503c\u3002",
+            "\u7d2f\u8ba1\u6c89\u964d": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u81ea\u76d1\u6d4b\u8d77\u59cb\u6216\u57fa\u51c6\u65f6\u95f4\u4ee5\u6765\u7d2f\u8ba1\u53d1\u751f\u7684\u5782\u76f4\u4e0b\u6c89\u4f4d\u79fb\u603b\u91cf\u3002",
+            "\u8f83\u4e0a\u4e00\u5468\u671f\u589e\u52a0": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u6240\u76d1\u6d4b\u6307\u6807\u76f8\u8f83\u4e8e\u4e0a\u4e00\u4e2a\u76d1\u6d4b\u5468\u671f\u6240\u589e\u52a0\u7684\u5177\u4f53\u6570\u503c\u3002"
+        },
+        "canonicalization_candidates": "[{'contains administrative territorial entity': np.float32(0.39997193), 'located in the administrative territorial entity': np.float32(0.3659855), 'contains settlement': np.float32(0.36390495), 'start time': np.float32(0.34343088), 'country': np.float32(0.327429)}, {'\u677e\u6563\u9762\u79ef': np.float32(0.82615316), 'contains settlement': np.float32(0.4092433), 'contains administrative territorial entity': np.float32(0.40671813), 'start time': np.float32(0.39335155), 'located in the administrative territorial entity': np.float32(0.37301576)}, {'\u5265\u843d\u6df1\u5ea6': np.float32(0.8400528), '\u677e\u6563\u9762\u79ef': np.float32(0.75380236), 'contains settlement': np.float32(0.4221325), 'contains administrative territorial entity': np.float32(0.39168638), 'start time': np.float32(0.38715938)}, {'\u4e0d\u5747\u5300\u6c89\u964d': np.float32(0.87890595), '\u5265\u843d\u6df1\u5ea6': np.float32(0.8163446), '\u677e\u6563\u9762\u79ef': np.float32(0.73245), 'contains administrative territorial entity': np.float32(0.42951182), 'contains settlement': np.float32(0.42806005)}, {'\u5265\u843d\u6df1\u5ea6': np.float32(0.6931268), '\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee': np.float32(0.67594266), '\u4e0d\u5747\u5300\u6c89\u964d': np.float32(0.6746012), '\u677e\u6563\u9762\u79ef': np.float32(0.67234445), 'contains administrative territorial entity': np.float32(0.384647)}, {'\u6865\u9762\u6e29\u5ea6': np.float32(0.768654), '\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee': np.float32(0.7207181), '\u4e0d\u5747\u5300\u6c89\u964d': np.float32(0.6883605), '\u5265\u843d\u6df1\u5ea6': np.float32(0.6730932), '\u677e\u6563\u9762\u79ef': np.float32(0.6600292)}, {'\u4e0d\u5747\u5300\u6c89\u964d': np.float32(0.886842), '\u5265\u843d\u6df1\u5ea6': np.float32(0.78554046), '\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee': np.float32(0.7510712), '\u677e\u6563\u9762\u79ef': np.float32(0.67740214), '\u6865\u9762\u6e29\u5ea6': np.float32(0.675558)}, {'\u6865\u9762\u6e29\u5ea6': np.float32(0.7227716), '\u7d2f\u8ba1\u6c89\u964d': np.float32(0.708555), '\u663c\u591c\u6e29\u5dee': np.float32(0.7052881), '\u5265\u843d\u6df1\u5ea6': np.float32(0.70034623), '\u677e\u6563\u9762\u79ef': np.float32(0.68473434)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u9762\u5c40\u90e8\u94fa\u88c5",
+                "\u677e\u6563\u9762\u79ef",
+                "1.8m2"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u9762\u5c40\u90e8\u94fa\u88c5",
+                "\u5265\u843d\u6df1\u5ea6",
+                "8mm"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u4e0d\u5747\u5300\u6c89\u964d",
+                "9mm"
+            ],
+            [
+                "\u67f3\u6c5f\u4e8c\u6865\u6865\u53f0\u8fc7\u6e21\u6bb5",
+                "\u642d\u677f\u63a5\u7f1d\u5904\u9ad8\u5dee",
+                "7mm"
+            ],
+            [
+                "\u94fa\u88c5\u6e29\u5ea6\u8ba1 M-LZ02-01",
+                "\u6865\u9762\u6e29\u5ea6",
+                "34.6\u2103"
+            ],
+            [
+                "\u94fa\u88c5\u6e29\u5ea6\u8ba1 M-LZ02-01",
+                "\u663c\u591c\u6e29\u5dee",
+                "8.2\u2103"
+            ],
+            [
+                "\u6c89\u964d\u89c2\u6d4b\u70b9 M-LZ02-02",
+                "\u7d2f\u8ba1\u6c89\u964d",
+                "11mm"
+            ],
+            [
+                "\u6c89\u964d\u89c2\u6d4b\u70b9 M-LZ02-02",
+                "\u8f83\u4e0a\u4e00\u5468\u671f\u589e\u52a0",
+                "2mm"
+            ]
+        ]
+    }
+]

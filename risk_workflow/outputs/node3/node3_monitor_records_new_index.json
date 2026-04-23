@@ -1,0 +1,42 @@
+[
+  {
+    "file": "BR-BY01_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_1_BR-BY01_monitor_01_20260423_155102",
+    "canon_kg": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_1_BR-BY01_monitor_01_20260423_155102\\iter0\\canon_kg.txt",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-HZ07_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_2_BR-HZ07_monitor_01_20260423_155636",
+    "canon_kg": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_2_BR-HZ07_monitor_01_20260423_155636\\iter0\\canon_kg.txt",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-LZ02_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_3_BR-LZ02_monitor_01_20260423_160224",
+    "canon_kg": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_3_BR-LZ02_monitor_01_20260423_160224\\iter0\\canon_kg.txt",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "BR-QS09_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_4_BR-QS09_monitor_01_20260423_160747",
+    "canon_kg": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_4_BR-QS09_monitor_01_20260423_160747\\iter0\\canon_kg.txt",
+    "triplet_groups": 1,
+    "error": null
+  },
+  {
+    "file": "EX-BR-001_monitor_01.txt",
+    "status": "ok",
+    "edc_output_dir": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_5_EX-BR-001_monitor_01_20260423_161257",
+    "canon_kg": "risk_workflow\\outputs\\node3\\node3_monitor_records_new_5_EX-BR-001_monitor_01_20260423_161257\\iter0\\canon_kg.txt",
+    "triplet_groups": 1,
+    "error": null
+  }
+]

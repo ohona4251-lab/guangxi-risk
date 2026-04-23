@@ -1,0 +1,6 @@
+langgraph==1.1.9
+langgraph-checkpoint-sqlite==3.0.3
+openai==1.93.0
+pypdf==5.9.0
+python-dotenv==1.1.1
+numpy==2.2.6

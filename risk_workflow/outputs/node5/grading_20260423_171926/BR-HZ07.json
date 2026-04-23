@@ -1,0 +1,98 @@
+{
+  "point_id": "BR-HZ07",
+  "point_name": "红光大桥",
+  "subject_type": "桥梁",
+  "hazard_type": "桥梁伸缩缝及桥面病害",
+  "risk_level": "I级",
+  "risk_class": "risk-i",
+  "score": 16,
+  "grading_basis": {
+    "matched_facts": [
+      {
+        "field": "竖向位移",
+        "value": 22.0,
+        "unit": "mm",
+        "raw": "竖向位移 22mm"
+      },
+      {
+        "field": "上升",
+        "value": 6.0,
+        "unit": "mm",
+        "raw": "上升6mm"
+      },
+      {
+        "field": "错台高差",
+        "value": 18.0,
+        "unit": "mm",
+        "raw": "错台高差 18mm"
+      },
+      {
+        "field": "振动峰值",
+        "value": 0.42,
+        "unit": "g",
+        "raw": "振动峰值 0.42g"
+      },
+      {
+        "field": "竖向位移",
+        "value": 28.0,
+        "unit": "mm",
+        "raw": "竖向位移 28mm"
+      },
+      {
+        "field": "日变化幅度",
+        "value": 5.0,
+        "unit": "mm",
+        "raw": "日变化幅度 5mm"
+      },
+      {
+        "field": "索力偏差",
+        "value": 7.5,
+        "unit": "%",
+        "raw": "索力偏差 7.5%"
+      },
+      {
+        "field": "较上一周期上升",
+        "value": 6.0,
+        "unit": "mm",
+        "raw": "较上一周期上升 6mm"
+      },
+      {
+        "field": "跨中挠度",
+        "value": 28.0,
+        "unit": "mm",
+        "raw": "跨中挠度 28mm"
+      }
+    ],
+    "matched_evidence": [
+      "文本命中关键词：立即、交通管控、明显异常、持续异响、扩展趋势明显",
+      "文本命中关键词：异常、明显、扩大",
+      "文本命中关键词：错台、裂缝、位移",
+      "文本命中关键词：局部",
+      "数值达到关注范围：竖向位移 22mm",
+      "数值达到关注范围：错台高差 18mm",
+      "监测指标异常：振动峰值 0.42g",
+      "数值较大：竖向位移 28mm",
+      "百分比偏差达到关注范围：索力偏差 7.5%",
+      "数值较大：跨中挠度 28mm"
+    ],
+    "matched_rules": [
+      {
+        "hazard_type": "桥梁伸缩缝及桥面病害",
+        "judgement_basis": "按知识图谱中异常现象和监测事实进行判定。",
+        "grading_rule": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。"
+      }
+    ],
+    "kg_sources": {
+      "inspection_paths": [
+        "risk_workflow\\outputs\\node2\\front_inspection_records_3_bridge_br_hz07_record1_20260423_142247\\iter0\\canon_kg.txt",
+        "risk_workflow\\outputs\\node2\\front_inspection_records_4_bridge_br_hz07_record2_20260423_142829\\iter0\\canon_kg.txt"
+      ],
+      "monitor_paths": [
+        "risk_workflow\\outputs\\node3\\node3_monitor_records_new_2_BR-HZ07_monitor_01_20260423_155636\\iter0\\canon_kg.txt"
+      ],
+      "triple_count": 20
+    }
+  },
+  "explanation": "红光大桥主体分类为桥梁，识别的主要隐患类型为桥梁伸缩缝及桥面病害。知识图谱和文本证据显示：文本命中关键词：立即、交通管控、明显异常、持续异响、扩展趋势明显；文本命中关键词：异常、明显、扩大；文本命中关键词：错台、裂缝、位移；文本命中关键词：局部；数值达到关注范围：竖向位移 22mm；数值达到关注范围：错台高差 18mm；监测指标异常：振动峰值 0.42g；数值较大：竖向位移 28mm；百分比偏差达到关注范围：索力偏差 7.5%；数值较大：跨中挠度 28mm。依据分级规则和异常程度综合评分为16，判定为I级风险。",
+  "suggestion": "建议立即组织现场复核，必要时采取交通管控和应急处置。"
+}

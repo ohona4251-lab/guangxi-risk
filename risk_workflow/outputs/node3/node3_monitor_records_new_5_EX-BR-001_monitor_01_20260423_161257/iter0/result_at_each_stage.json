@@ -1,0 +1,103 @@
+[
+    {
+        "index": 0,
+        "input_text": "\u6865\u6881\u4f38\u7f29\u7f1d\uff1a\u9519\u53f0\u9ad8\u5dee 14mm\uff0c\u7f1d\u5bbd\u53d8\u5316\u91cf 3mm\n\u6865\u9762\u94fa\u88c5\uff1a\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6 3.1mm\uff0c\u88c2\u7f1d\u957f\u5ea6 1.9m\n\u4f38\u7f29\u7f1d\u4f4d\u79fb\u8ba1 M-EXBR-01\uff1a\u4f4d\u79fb\u589e\u91cf 4mm\uff0c\u8f83\u4e0a\u4e00\u5468\u671f\u4e0a\u5347 2mm\n\u6865\u9762\u52a0\u901f\u5ea6\u8ba1 M-EXBR-02\uff1a\u7ad6\u5411\u52a0\u901f\u5ea6\u5cf0\u503c 0.31g\uff0c\u91c7\u6837\u9891\u7387 20Hz",
+        "entity_hint": "",
+        "relation_hint": "",
+        "oie": [
+            [
+                "\u6865\u6881\u4f38\u7f29\u7f1d",
+                "\u9519\u53f0\u9ad8\u5dee",
+                "14mm"
+            ],
+            [
+                "\u6865\u6881\u4f38\u7f29\u7f1d",
+                "\u7f1d\u5bbd\u53d8\u5316\u91cf",
+                "3mm"
+            ],
+            [
+                "\u6865\u9762\u94fa\u88c5",
+                "\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6",
+                "3.1mm"
+            ],
+            [
+                "\u6865\u9762\u94fa\u88c5",
+                "\u88c2\u7f1d\u957f\u5ea6",
+                "1.9m"
+            ],
+            [
+                "\u4f38\u7f29\u7f1d\u4f4d\u79fb\u8ba1 M-EXBR-01",
+                "\u4f4d\u79fb\u589e\u91cf",
+                "4mm"
+            ],
+            [
+                "\u4f38\u7f29\u7f1d\u4f4d\u79fb\u8ba1 M-EXBR-01",
+                "\u8f83\u4e0a\u4e00\u5468\u671f\u4e0a\u5347",
+                "2mm"
+            ],
+            [
+                "\u6865\u9762\u52a0\u901f\u5ea6\u8ba1 M-EXBR-02",
+                "\u7ad6\u5411\u52a0\u901f\u5ea6\u5cf0\u503c",
+                "0.31g"
+            ],
+            [
+                "\u6865\u9762\u52a0\u901f\u5ea6\u8ba1 M-EXBR-02",
+                "\u91c7\u6837\u9891\u7387",
+                "20Hz"
+            ]
+        ],
+        "schema_definition": {
+            "\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u8868\u9762\u6216\u5185\u90e8\u5c40\u90e8\u533a\u57df\u88c2\u7f1d\u7684\u6a2a\u5411\u5bbd\u5ea6\u3002",
+            "\u7ad6\u5411\u52a0\u901f\u5ea6\u5cf0\u503c": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5728\u5782\u76f4\u65b9\u5411\u4e0a\u8bb0\u5f55\u6216\u627f\u53d7\u7684\u6700\u5927\u52a0\u901f\u5ea6\u503c\u3002",
+            "\u88c2\u7f1d\u957f\u5ea6": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u4e2d\u88c2\u7f1d\u6cbf\u5ef6\u4f38\u65b9\u5411\u7684\u603b\u957f\u5ea6\u3002",
+            "\u9519\u53f0\u9ad8\u5dee": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u76f8\u90bb\u90e8\u5206\u6216\u5bf9\u63a5\u9762\u4e4b\u95f4\u7684\u5782\u76f4\u9ad8\u5ea6\u5dee\u503c\u3002",
+            "\u8f83\u4e0a\u4e00\u5468\u671f\u4e0a\u5347": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u7684\u76d1\u6d4b\u6570\u503c\u76f8\u8f83\u4e8e\u4e0a\u4e00\u76d1\u6d4b\u5468\u671f\u589e\u52a0\u7684\u91cf\u503c\u3002",
+            "\u7f1d\u5bbd\u53d8\u5316\u91cf": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u4e2d\u7f1d\u9699\u6216\u63a5\u7f1d\u5bbd\u5ea6\u7684\u53d8\u5316\u6570\u503c\u3002",
+            "\u91c7\u6837\u9891\u7387": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5355\u4f4d\u65f6\u95f4\u5185\u91c7\u96c6\u6216\u8bb0\u5f55\u6570\u636e\u7684\u6b21\u6570\u3002",
+            "\u4f4d\u79fb\u589e\u91cf": "\u5bbe\u8bed\u8868\u793a\u4e3b\u8bed\u5b9e\u4f53\u5728\u7279\u5b9a\u65f6\u95f4\u6bb5\u6216\u6761\u4ef6\u4e0b\u4f4d\u7f6e\u79fb\u52a8\u7684\u53d8\u5316\u91cf\u3002"
+        },
+        "canonicalization_candidates": "[{'contains administrative territorial entity': np.float32(0.42582476), 'contains settlement': np.float32(0.41948435), 'located in the administrative territorial entity': np.float32(0.39973876), 'start time': np.float32(0.3936579), 'country': np.float32(0.35007107)}, {'\u9519\u53f0\u9ad8\u5dee': np.float32(0.83492213), 'contains settlement': np.float32(0.43333542), 'contains administrative territorial entity': np.float32(0.41743577), 'start time': np.float32(0.41549224), 'located in the administrative territorial entity': np.float32(0.39180082)}, {'\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.8453809), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7368928), 'contains administrative territorial entity': np.float32(0.42038393), 'start time': np.float32(0.406116), 'contains settlement': np.float32(0.38933846)}, {'\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6': np.float32(0.91621655), '\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.8346617), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.73187494), 'start time': np.float32(0.4143068), 'contains administrative territorial entity': np.float32(0.39871764)}, {'\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.79468936), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.784931), '\u88c2\u7f1d\u957f\u5ea6': np.float32(0.66544807), '\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6': np.float32(0.64594275), 'start time': np.float32(0.478615)}, {'\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.72832716), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7129946), '\u4f4d\u79fb\u589e\u91cf': np.float32(0.69029987), '\u88c2\u7f1d\u957f\u5ea6': np.float32(0.6585738), '\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6': np.float32(0.62625307)}, {'\u9519\u53f0\u9ad8\u5dee': np.float32(0.7819677), '\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.75321925), '\u88c2\u7f1d\u957f\u5ea6': np.float32(0.7414032), '\u4f4d\u79fb\u589e\u91cf': np.float32(0.7242316), '\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6': np.float32(0.7138827)}, {'\u4f4d\u79fb\u589e\u91cf': np.float32(0.75101256), '\u7f1d\u5bbd\u53d8\u5316\u91cf': np.float32(0.7472838), '\u9519\u53f0\u9ad8\u5dee': np.float32(0.7232486), '\u7ad6\u5411\u52a0\u901f\u5ea6\u5cf0\u503c': np.float32(0.71134114), '\u88c2\u7f1d\u957f\u5ea6': np.float32(0.663193)}]",
+        "schema_canonicalizaiton": [
+            [
+                "\u6865\u6881\u4f38\u7f29\u7f1d",
+                "\u9519\u53f0\u9ad8\u5dee",
+                "14mm"
+            ],
+            [
+                "\u6865\u6881\u4f38\u7f29\u7f1d",
+                "\u7f1d\u5bbd\u53d8\u5316\u91cf",
+                "3mm"
+            ],
+            [
+                "\u6865\u9762\u94fa\u88c5",
+                "\u5c40\u90e8\u5f00\u88c2\u5bbd\u5ea6",
+                "3.1mm"
+            ],
+            [
+                "\u6865\u9762\u94fa\u88c5",
+                "\u88c2\u7f1d\u957f\u5ea6",
+                "1.9m"
+            ],
+            [
+                "\u4f38\u7f29\u7f1d\u4f4d\u79fb\u8ba1 M-EXBR-01",
+                "\u4f4d\u79fb\u589e\u91cf",
+                "4mm"
+            ],
+            [
+                "\u4f38\u7f29\u7f1d\u4f4d\u79fb\u8ba1 M-EXBR-01",
+                "\u4f4d\u79fb\u589e\u91cf",
+                "2mm"
+            ],
+            [
+                "\u6865\u9762\u52a0\u901f\u5ea6\u8ba1 M-EXBR-02",
+                "\u7ad6\u5411\u52a0\u901f\u5ea6\u5cf0\u503c",
+                "0.31g"
+            ],
+            [
+                "\u6865\u9762\u52a0\u901f\u5ea6\u8ba1 M-EXBR-02",
+                "\u91c7\u6837\u9891\u7387",
+                "20Hz"
+            ]
+        ]
+    }
+]

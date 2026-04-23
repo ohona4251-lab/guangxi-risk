@@ -1,0 +1,61 @@
+{
+  "type": "scope",
+  "count": 5,
+  "points": [
+    {
+      "id": "SL-GZ01",
+      "name": "贵港东侧高边坡",
+      "category": "边坡",
+      "risk_level": "II级",
+      "location": "贵港市港北区",
+      "lnglat": {
+        "lng": 109.5989,
+        "lat": 23.1115
+      }
+    },
+    {
+      "id": "SL-BH02",
+      "name": "北海沿线边坡",
+      "category": "边坡",
+      "risk_level": "III级",
+      "location": "北海市合浦县",
+      "lnglat": {
+        "lng": 109.2005,
+        "lat": 21.6616
+      }
+    },
+    {
+      "id": "SL-HC03",
+      "name": "河池西段边坡",
+      "category": "边坡",
+      "risk_level": "I级",
+      "location": "河池市金城江区",
+      "lnglat": {
+        "lng": 108.0858,
+        "lat": 24.6929
+      }
+    },
+    {
+      "id": "EX-SL-001",
+      "name": "K123+500至K124+200边坡巡检点",
+      "category": "边坡",
+      "risk_level": "II级",
+      "location": "K123+500至K124+200边坡",
+      "lnglat": {
+        "lng": 109.5989,
+        "lat": 23.1115
+      }
+    },
+    {
+      "id": "EX-SL-002",
+      "name": "隧道进口边仰坡巡检点",
+      "category": "边坡",
+      "risk_level": "I级",
+      "location": "山区高速隧道进口边仰坡",
+      "lnglat": {
+        "lng": 108.0858,
+        "lat": 24.6929
+      }
+    }
+  ]
+}
