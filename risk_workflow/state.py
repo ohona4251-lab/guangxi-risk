@@ -48,3 +48,6 @@ class RiskWorkflowState(TypedDict, total=False):
     review_payload: dict[str, Any]
     review_decision: str
     review_comment: str
+    manual_review: dict[str, Any]
+    pending_review_output_path: str
+    rule_revision: dict[str, Any]

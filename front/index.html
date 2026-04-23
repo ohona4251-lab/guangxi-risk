@@ -16,7 +16,9 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-block">
+          <p class="eyebrow">Risk Inspection Console</p>
           <h1>基于大模型的风险点智能分级系统</h1>
+          <p class="subtitle">巡检表单、监测点与风险分级结果的统一可视化入口</p>
         </div>
         <div class="topbar-actions">
           <div class="user-chip">当前用户：admin（管理员）</div>
@@ -26,13 +28,13 @@
 
       <section class="toolbar">
         <div class="toolbar-left">
-          <button id="open-rule-report-btn" class="tab-btn is-active" type="button">风险分级规则</button>
+          <button class="tab-btn is-active" type="button">风险分级规则</button>
           <button class="tab-btn" type="button">风险点管理</button>
         </div>
         <div class="toolbar-filters">
           <label class="field">
             <span>时间范围</span>
-            <select id="time-range-select" aria-label="时间范围"></select>
+            <input type="text" value="2026-04-22 至 2026-04-23" readonly />
           </label>
           <label class="field">
             <span>事件类型</span>
@@ -51,14 +53,23 @@
           </div>
         </div>
         <div class="toolbar-right">
-          <button id="one-click-grading-btn" class="primary-outline" type="button">一键分级</button>
+          <div class="progress-card">
+            <div>
+              <p>分级进度</p>
+              <strong>18 / 20</strong>
+            </div>
+            <div class="progress-track">
+              <span style="width: 90%"></span>
+            </div>
+          </div>
+          <button class="primary-outline" type="button">一键分级</button>
         </div>
       </section>
 
       <section class="status-row">
         <div class="status-panel status-panel-time">
           <p>当前时间 <strong id="current-time"></strong></p>
-          <p>距定时分级（08:00）<strong id="grading-countdown" class="success-text"></strong></p>
+          <p>定时分级（08:00）<strong class="success-text">22:23:50</strong></p>
         </div>
         <div class="status-panel">
           <span>监测点总数</span>
@@ -78,8 +89,8 @@
         <aside class="point-list-panel">
           <div class="panel-heading">
             <div>
-              <h2>检测点列表</h2>
-              <p id="list-summary">桥梁：0 处 | 边坡：0 处</p>
+              <h2>监测点列表</h2>
+              <p id="list-summary">桥梁：0 条 | 边坡：0 条</p>
             </div>
             <div class="mini-tabs">
               <button class="mini-tab is-active" type="button" data-type="桥梁">桥梁</button>
@@ -94,7 +105,7 @@
             <div class="map-overlay">
               <div class="map-title">
                 <h2>区域分布</h2>
-                <p>检测点在辖区内的风险空间分布</p>
+                <p>监测点在辖区内的风险空间分布</p>
               </div>
               <div class="map-legend">
                 <h3>图例</h3>
@@ -106,38 +117,10 @@
                 </ul>
               </div>
             </div>
-            <div id="map-root" class="map-root" aria-label="检测点地图"></div>
+            <div id="map-root" class="map-root" aria-label="监测点地图"></div>
           </div>
         </section>
       </main>
-    </div>
-
-    <div id="rule-report-modal" class="rule-report-modal hidden" role="dialog" aria-modal="true">
-      <div class="rule-report-dialog">
-        <button class="rule-report-close" type="button" data-close-rule-modal="true">×</button>
-        <div class="rule-report-title">桥梁/边坡风险分级规则</div>
-
-        <section class="rule-upload-bar">
-          <strong>多文件规则报告</strong>
-          <div class="rule-upload-actions">
-            <button class="rule-action-btn" type="button">添加文件</button>
-            <button class="rule-action-btn primary" type="button">开始抽取（0）</button>
-            <button class="rule-action-btn" type="button">清空</button>
-          </div>
-        </section>
-
-        <section class="rule-source-tabs" aria-label="规则来源"></section>
-
-        <section class="rule-table-card">
-          <div class="rule-table-head">
-            <strong>规则链汇总表</strong>
-            <span id="rule-row-count">0 条</span>
-          </div>
-          <div id="rule-table-wrap" class="rule-table-wrap">
-            <div class="rule-empty">正在加载规则数据...</div>
-          </div>
-        </section>
-      </div>
     </div>
 
     <div id="detail-modal" class="modal hidden" role="dialog" aria-modal="true">
@@ -237,7 +220,14 @@
                   <textarea id="review-remark" rows="5" placeholder="补充人工复核依据"></textarea>
                 </label>
 
-                <button id="review-submit-btn" class="primary-btn" type="button">填写内容</button>
+                <div class="review-actions">
+                  <select id="review-history-select" class="review-history-select">
+                    <option value="">选择历史审核</option>
+                  </select>
+                  <button id="review-history-btn" class="ghost-btn" type="button">查看历史审核</button>
+                  <button id="review-save-btn" class="ghost-btn" type="button">保存填写内容</button>
+                  <button id="review-submit-btn" class="primary-btn" type="button">提交复核</button>
+                </div>
               </div>
             </section>
 
@@ -247,11 +237,12 @@
             </section>
           </div>
         </div>
+
         <div id="detail-inspection-page" class="detail-view hidden">
           <div class="review-page-header">
             <div>
               <h3>巡检信息详情</h3>
-              <p id="inspection-page-subtitle">查看当前检测点的详细巡检文本。</p>
+              <p id="inspection-page-subtitle">查看当前监测点的详细巡检文本。</p>
             </div>
             <button id="inspection-back-btn" class="ghost-btn small" type="button">返回概览</button>
           </div>
@@ -268,17 +259,6 @@
             </section>
           </div>
         </div>
-        <div id="detail-grade-page" class="detail-view hidden">
-          <div class="review-page-header">
-            <div>
-              <h3>风险分级详情</h3>
-              <p id="grade-page-subtitle">查看分级结论、规则依据和判断过程。</p>
-            </div>
-            <button id="grade-back-btn" class="ghost-btn small" type="button">返回概览</button>
-          </div>
-
-          <div id="grade-detail-panel" class="grade-detail-panel"></div>
-        </div>
       </div>
     </div>
 
@@ -287,7 +267,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="./mock-data.js"></script>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=review-layout-history-rerun-20260423"></script>
   </body>
 </html>

@@ -1,6 +1,8 @@
 (function () {
   const appData = {
-    dashboard: {},
+    dashboard: {
+      currentTime: "2026-04-23 09:36:09"
+    },
     points: []
   };
 
@@ -10,6 +12,7 @@
     "III级": "risk-iii",
     "IV级": "risk-iv"
   };
+
   const inspectionTextSourceMap = {
     "BR-BY01": [
       "../data/examples/bridge_br_by01_record1.txt",
@@ -53,12 +56,6 @@
       "../risk_workflow/outputs/node2/front_inspection_records_2_bridge_br_by01_record2_20260423_141852/iter0/canon_kg.txt"
     ]
   };
-  const structuredInspectionGraphSourceMap = {
-    "BR-BY01": {
-      nodesPath: "../risk_workflow/outputs/node2/test/initial_kg.nodes.json",
-      edgesPath: "../risk_workflow/outputs/node2/test/initial_kg.edges.json"
-    }
-  };
   const generatedMonitorGraphSourceMap = {
     "BR-BY01": [
       "../risk_workflow/outputs/node3/node3_monitor_records_1_BR-BY01_monitor_01_20260423_143811/iter0/canon_kg.txt"
@@ -81,46 +78,6 @@
     "EX-SL-002": ["../data/monitor_data/EX-SL-002_monitor_01.txt"]
   };
 
-  const ruleReportSources = [
-    {
-      id: "merged",
-      name: "merged.json",
-      label: "合并规则",
-      subject: "综合",
-      path: "../risk_workflow/outputs/node1/merged.json"
-    },
-    {
-      id: "all_docs",
-      name: "all_docs.json",
-      label: "全部文档",
-      subject: "综合",
-      path: "../risk_workflow/outputs/node1/all_docs.json"
-    },
-    {
-      id: "bridge",
-      name: "公路桥梁安全风险辨识与隐患排查指南_试行_pdf.json",
-      label: "桥梁指南",
-      subject: "桥梁",
-      path: "../risk_workflow/outputs/node1/公路桥梁安全风险辨识与隐患排查指南_试行_pdf.json"
-    },
-    {
-      id: "natural",
-      name: "自然灾害综合风险公路承灾体普查技术指南_第一册_pdf.json",
-      label: "承灾体普查",
-      subject: "边坡",
-      path: "../risk_workflow/outputs/node1/自然灾害综合风险公路承灾体普查技术指南_第一册_pdf.json"
-    }
-  ];
-
-  const ruleLevelClassMap = {
-    高风险: "high",
-    较高风险: "higher",
-    中风险: "medium",
-    低风险: "low"
-  };
-  const gradingResultPath = "../risk_workflow/outputs/node5/latest.json";
-  const gradingCacheKey = "gx-risk-node5-latest-grading";
-
   const pointListEl = document.getElementById("point-list");
   const modalEl = document.getElementById("detail-modal");
   const mapRootEl = document.getElementById("map-root");
@@ -129,20 +86,14 @@
   const typeBreakdownEl = document.getElementById("stat-type-breakdown");
   const alertBreakdownEl = document.getElementById("stat-alert-breakdown");
   const currentTimeEl = document.getElementById("current-time");
-  const gradingCountdownEl = document.getElementById("grading-countdown");
-  const timeRangeSelectEl = document.getElementById("time-range-select");
   const tabButtons = Array.from(document.querySelectorAll(".mini-tab"));
   const detailOverviewEl = document.getElementById("detail-overview");
   const detailReviewPageEl = document.getElementById("detail-review-page");
   const detailInspectionPageEl = document.getElementById("detail-inspection-page");
-  const detailGradePageEl = document.getElementById("detail-grade-page");
   const reviewPageSubtitleEl = document.getElementById("review-page-subtitle");
   const reviewBackBtn = document.getElementById("review-back-btn");
   const inspectionPageSubtitleEl = document.getElementById("inspection-page-subtitle");
   const inspectionBackBtn = document.getElementById("inspection-back-btn");
-  const gradePageSubtitleEl = document.getElementById("grade-page-subtitle");
-  const gradeBackBtn = document.getElementById("grade-back-btn");
-  const gradeDetailPanelEl = document.getElementById("grade-detail-panel");
   const inspectionSummaryPanelEl = document.getElementById("inspection-summary-panel");
   const inspectionDetailPanelEl = document.getElementById("inspection-detail-panel");
   const reviewNodeGradeEl = document.getElementById("review-node-grade");
@@ -150,26 +101,20 @@
   const reviewRemarkEl = document.getElementById("review-remark");
   const reviewResultPanelEl = document.getElementById("review-result-panel");
   const reviewSubmitBtn = document.getElementById("review-submit-btn");
-  const openRuleReportBtn = document.getElementById("open-rule-report-btn");
-  const ruleReportModalEl = document.getElementById("rule-report-modal");
-  const ruleSourceTabsEl = document.querySelector(".rule-source-tabs");
-  const ruleTableWrapEl = document.getElementById("rule-table-wrap");
-  const ruleRowCountEl = document.getElementById("rule-row-count");
-  const oneClickGradingBtn = document.getElementById("one-click-grading-btn");
 
   let mapInstance = null;
   let provinceLayer = null;
   let activeMarker = null;
   let currentType = "桥梁";
   let currentDetailPoint = null;
-  let dashboardTimer = null;
   const markerById = new Map();
   const graphCache = new Map();
   const tripleCache = new Map();
   const inspectionTextCache = new Map();
   const monitorTextCache = new Map();
-  const ruleReportCache = new Map();
-  let activeRuleSourceId = "merged";
+  let workflowSession = null;
+  let workflowStartPromise = null;
+  let reviewHistoryItems = [];
 
   function parseLngLat(value) {
     if (!value) {
@@ -265,16 +210,6 @@
       inspectionRecords: rawPoint.inspection_records || rawPoint.inspectionRecords || [],
       inspectionTextSources: rawPoint.inspection_text_sources || inspectionTextSourceMap[rawPoint.id] || [],
       inspectionGraph: {
-        nodesPath:
-          rawPoint.inspection_graph_nodes_path ||
-          rawPoint.inspectionGraph?.nodesPath ||
-          structuredInspectionGraphSourceMap[rawPoint.id]?.nodesPath ||
-          "",
-        edgesPath:
-          rawPoint.inspection_graph_edges_path ||
-          rawPoint.inspectionGraph?.edgesPath ||
-          structuredInspectionGraphSourceMap[rawPoint.id]?.edgesPath ||
-          "",
         sourcePath:
           rawPoint.inspection_graph_source_path ||
           rawPoint.inspectionGraph?.sourcePath ||
@@ -331,267 +266,201 @@
     return response.text();
   }
 
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function splitLongRuleText(text) {
-    const value = String(text || "").trim();
-    if (!value) {
-      return [];
-    }
-
-    const dividerParts = value
-      .split(/\n---\n/g)
-      .map((item) => item.trim())
-      .filter(Boolean);
-    if (dividerParts.length > 1) {
-      return dividerParts;
-    }
-
-    const lineParts = value
-      .split(/\r?\n/g)
-      .map((item) => item.trim())
-      .filter(Boolean);
-    if (lineParts.length > 1) {
-      return lineParts;
-    }
-
-    if (value.length > 120) {
-      return value
-        .split(/；|;(?=\S)/g)
-        .map((item) => item.trim())
-        .filter(Boolean);
-    }
-
-    return [value];
-  }
-
-  function splitRiskLevels(text) {
-    const value = String(text || "").trim();
-    if (!value) {
-      return [];
-    }
-
-    const matches = Array.from(value.matchAll(/(高风险|较高风险|中风险|低风险)：/g));
-    if (!matches.length) {
-      return splitLongRuleText(value).map((content, index) => ({
-        label: `规则 ${index + 1}`,
-        content
-      }));
-    }
-
-    return matches.map((match, index) => {
-      const start = match.index + match[0].length;
-      const end = matches[index + 1]?.index ?? value.length;
-      return {
-        label: match[1],
-        content: value.slice(start, end).trim()
-      };
+  async function postJson(path, payload) {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
     });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+    return data;
   }
 
-  function renderRuleTextCell(text, labelPrefix) {
-    const parts = splitLongRuleText(text);
-    if (!parts.length) {
-      return '<div class="rule-cell-muted">暂无数据</div>';
+  function translateRulePath(path) {
+    const value = String(path || "");
+    const exact = {
+      "grading_logic.basis_generation": "\u98ce\u9669\u5206\u7ea7\u903b\u8f91 - \u4f9d\u636e\u751f\u6210",
+      "grading_logic": "\u98ce\u9669\u5206\u7ea7\u903b\u8f91",
+      "basis_generation": "\u4f9d\u636e\u751f\u6210"
+    };
+    if (exact[value]) {
+      return exact[value];
     }
+    return value
+      .replaceAll("grading_logic", "\u98ce\u9669\u5206\u7ea7\u903b\u8f91")
+      .replaceAll("basis_generation", "\u4f9d\u636e\u751f\u6210")
+      .replaceAll("risk_level", "\u98ce\u9669\u7b49\u7ea7")
+      .replaceAll("candidate_risk_level", "\u5019\u9009\u98ce\u9669\u7b49\u7ea7")
+      .replaceAll("manual_review", "\u4eba\u5de5\u590d\u6838")
+      .replaceAll("_", "")
+      .replaceAll(".", " - ");
+  }
 
-    return `
-      <div class="rule-cell-list">
-        ${parts
+  function renderHistoryItem(item) {
+    const summary = item.summary || {};
+    const manualReview = summary.manual_review || {};
+    const changes = Array.isArray(summary.changes) ? summary.changes : [];
+    const changeHtml = changes.length
+      ? changes
           .map(
-            (part, index) => `
-              <div class="rule-info-item">
-                <span>${labelPrefix}${index + 1}</span>
-                <p>${escapeHtml(part)}</p>
+            (change) => `
+              <div class="review-change-item">
+                <p><strong>${translateRulePath(change.path)}</strong></p>
+                <p>\u539f\u89c4\u5219\uff1a${change.before || ""}</p>
+                <p>\u5efa\u8bae\u4fee\u6539\uff1a${change.after || ""}</p>
+                <p>\u4fee\u6539\u539f\u56e0\uff1a${change.reason || ""}</p>
               </div>
             `
           )
-          .join("")}
-      </div>
-    `;
-  }
-
-  function renderRiskRuleCell(text) {
-    const rules = splitRiskLevels(text);
-    if (!rules.length) {
-      return '<div class="rule-cell-muted">暂无规则</div>';
-    }
-
-    return `
-      <div class="risk-rule-list">
-        ${rules
-          .map(
-            (rule, index) => `
-              <div class="risk-rule-item ${ruleLevelClassMap[rule.label] || ""}">
-                <span>${escapeHtml(rule.label || `规则 ${index + 1}`)}</span>
-                <p>${escapeHtml(rule.content)}</p>
-              </div>
-            `
-          )
-          .join("")}
-      </div>
-    `;
-  }
-
-  function normalizeRuleRows(source, data) {
-    const sourceRows = Array.isArray(data)
-      ? data
-      : Object.entries(data || {}).map(([type, fields]) => ({
-          灾害类型: type,
-          ...(fields || {})
-        }));
-
-    return sourceRows.map((item, index) => {
-      const type = item.灾害类型 || item.type || item.name || `规则 ${index + 1}`;
-      return {
-        id: `${source.id}-${index}`,
-        sourceId: source.id,
-        subject: item.主体 || item.subject || source.subject,
-        type,
-        basis: item.灾害判断依据 || item.basis || "",
-        information: item.需要收集的信息 || item.information || "",
-        rule: item.风险分级规则 || item.rule || ""
-      };
-    });
-  }
-
-  function renderRuleSourceTabs() {
-    if (!ruleSourceTabsEl) {
-      return;
-    }
-
-    ruleSourceTabsEl.innerHTML = ruleReportSources
-      .map((source) => {
-        const rows = ruleReportCache.get(source.id) || [];
-        return `
-          <button class="rule-source-tab ${source.id === activeRuleSourceId ? "is-active" : ""}" type="button" data-rule-source="${source.id}">
-            <strong>${escapeHtml(source.label)}</strong>
-            <span>${escapeHtml(source.name)}</span>
-            <em>${rows.length || "-"} 条</em>
-          </button>
+          .join("")
+      : "";
+    const rerun = summary.rerun_result || {};
+    const rerunHtml = rerun.candidate_risk_level_after
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u98ce\u9669\u70b9\u7ed3\u679c</strong></p>
+            <p>\u539f\u7b49\u7ea7\uff1a${rerun.candidate_risk_level_before || ""}</p>
+            <p>\u91cd\u65b0\u5224\u65ad\u7b49\u7ea7\uff1a${rerun.candidate_risk_level_after || ""}</p>
+            <p>\u5224\u65ad\u4f9d\u636e\uff1a${rerun.basis_after || ""}</p>
+          </div>
+        `
+      : `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u98ce\u9669\u70b9\u7ed3\u679c</strong></p>
+            <p>\u672c\u6b21\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u672a\u4ea7\u751f\u91cd\u65b0\u6267\u884c\u7ed3\u679c\u3002</p>
+          </div>
         `;
-      })
-      .join("");
-  }
-
-  function renderRuleTable(rows) {
-    if (!ruleTableWrapEl || !ruleRowCountEl) {
-      return;
-    }
-
-    ruleRowCountEl.textContent = `${rows.length} 条`;
-    if (!rows.length) {
-      ruleTableWrapEl.innerHTML = '<div class="rule-empty">当前来源暂无规则数据</div>';
-      return;
-    }
-
-    ruleTableWrapEl.innerHTML = `
-      <table class="rule-table">
-        <thead>
-          <tr>
-            <th>序号</th>
-            <th>主体</th>
-            <th>灾害类型</th>
-            <th>灾害判断依据</th>
-            <th>需要收集的信息</th>
-            <th>风险分级规则</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows
-            .map(
-              (row, index) => `
-                <tr>
-                  <td>${index + 1}</td>
-                  <td>${escapeHtml(row.subject)}</td>
-                  <td>${escapeHtml(row.type)}</td>
-                  <td>${renderRuleTextCell(row.basis, "依据 ")}</td>
-                  <td>${renderRuleTextCell(row.information, "信息 ")}</td>
-                  <td>${renderRiskRuleCell(row.rule)}</td>
-                </tr>
-              `
-            )
-            .join("")}
-        </tbody>
-      </table>
+    return `
+      <div class="review-rerun-block">
+        <p><strong>${item.title || "\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55"}</strong></p>
+        <p>\u5ba1\u6838\u65f6\u95f4\uff1a${item.saved_at || ""}</p>
+        <p>\u590d\u6838\u7ed3\u8bba\uff1a${manualReview.conclusion || summary.review_decision || ""}</p>
+        <p>\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${manualReview.manual_grade || ""}</p>
+        <p>\u590d\u6838\u4f9d\u636e\uff1a${manualReview.basis || summary.review_comment || ""}</p>
+        ${rerunHtml}
+        ${changeHtml}
+      </div>
     `;
   }
 
-  async function loadRuleReportData() {
-    if (ruleReportCache.size === ruleReportSources.length) {
-      return;
-    }
-
-    const sourceResults = await Promise.all(
-      ruleReportSources.map(async (source) => {
-        try {
-          const data = await loadJsonFile(source.path);
-          return [source.id, normalizeRuleRows(source, data)];
-        } catch (error) {
-          return [source.id, []];
-        }
-      })
-    );
-
-    sourceResults.forEach(([sourceId, rows]) => {
-      ruleReportCache.set(sourceId, rows);
-    });
-  }
-
-  async function openRuleReport() {
-    if (!ruleReportModalEl) {
-      return;
-    }
-
-    ruleReportModalEl.classList.remove("hidden");
-    document.body.classList.add("modal-open");
-    ruleTableWrapEl.innerHTML = '<div class="rule-empty">正在加载规则数据...</div>';
-    ruleRowCountEl.textContent = "0 条";
-
-    await loadRuleReportData();
-    renderRuleSourceTabs();
-    renderRuleTable(ruleReportCache.get(activeRuleSourceId) || []);
-  }
-
-  function closeRuleReport() {
-    ruleReportModalEl?.classList.add("hidden");
-    if (modalEl?.classList.contains("hidden")) {
-      document.body.classList.remove("modal-open");
+  async function loadReviewHistoryOptions(selectEl) {
+    try {
+      const response = await fetch("/api/review/history");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      reviewHistoryItems = Array.isArray(data.items) ? data.items : [];
+      selectEl.innerHTML = [
+        `<option value="">\u9009\u62e9\u5386\u53f2\u5ba1\u6838</option>`,
+        ...reviewHistoryItems.map(
+          (item, index) => `<option value="${index}">${item.saved_at || ""} ${item.title || ""}</option>`
+        )
+      ].join("");
+    } catch (error) {
+      selectEl.innerHTML = `<option value="">\u5386\u53f2\u5ba1\u6838\u52a0\u8f7d\u5931\u8d25</option>`;
     }
   }
 
-  function bindRuleReport() {
-    openRuleReportBtn?.addEventListener("click", openRuleReport);
+  function renderWorkflowReviewPayload(data) {
+    const interruptPayload = data?.interrupt || {};
+    const payload = interruptPayload.review_payload || {};
+    const validated = payload.validated_result || {};
+    const report = payload.report || {};
+    const basis = payload.grading_basis || {};
+    return [
+      `<p><strong>\u8282\u70b9\u4e03\u5f85\u590d\u6838\u8f93\u5165\uff08\u6765\u81ea\u5df2\u6267\u884c\u5b8c\u6210\u7684\u7ed3\u679c\u548c\u8282\u70b9\u516d\u5386\u53f2\u6821\u9a8c\uff09\uff1a</strong></p>`,
+      `<p>\u6848\u4ef6\u7f16\u53f7\uff1a${interruptPayload.case_id || ""}</p>`,
+      `<p>\u98ce\u9669\u70b9\u7f16\u53f7\uff1a${interruptPayload.object_id || ""}</p>`,
+      `<p>\u5f53\u524d\u7b49\u7ea7\uff1a${validated.candidate_risk_level || ""}</p>`,
+      `<p>\u9700\u8981\u4eba\u5de5\u590d\u6838\uff1a${validated.needs_manual_review ? "\u662f" : "\u5426"}</p>`,
+      `<p>\u5386\u53f2\u6821\u9a8c\uff1a${report.consistency || report.status || ""}</p>`,
+      `<p>\u5206\u7ea7\u4f9d\u636e\uff1a${basis.description || payload.explanation || ""}</p>`
+    ].join("");
+  }
 
-    ruleReportModalEl?.addEventListener("click", function (event) {
-      const closeTrigger = event.target.closest("[data-close-rule-modal]");
-      if (closeTrigger) {
-        closeRuleReport();
-        return;
-      }
+  async function startReviewWorkflow(point) {
+    workflowSession = null;
+    reviewResultPanelEl.textContent = "\u6b63\u5728\u57fa\u4e8e\u5df2\u6267\u884c\u5b8c\u6210\u7684\u7ed3\u679c\u751f\u6210\u8282\u70b9\u4e03\u590d\u6838\u8f93\u5165...";
+    if (workflowStartPromise) {
+      return workflowStartPromise;
+    }
+    workflowStartPromise = postJson("/api/workflow/start", { point });
+    try {
+      const data = await workflowStartPromise;
+      workflowSession = data;
+      reviewResultPanelEl.innerHTML = renderWorkflowReviewPayload(data);
+      return data;
+    } catch (error) {
+      reviewResultPanelEl.innerHTML = `<p>\u590d\u6838\u63a5\u53e3\u4e0d\u53ef\u7528\uff1a${error.message}</p>`;
+      return null;
+    } finally {
+      workflowStartPromise = null;
+    }
+  }
 
-      const sourceTrigger = event.target.closest("[data-rule-source]");
-      if (!sourceTrigger) {
-        return;
-      }
-
-      activeRuleSourceId = sourceTrigger.dataset.ruleSource;
-      renderRuleSourceTabs();
-      renderRuleTable(ruleReportCache.get(activeRuleSourceId) || []);
-    });
-
-    document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && !ruleReportModalEl?.classList.contains("hidden")) {
-        closeRuleReport();
-      }
-    });
+  function renderWorkflowSubmitResult(data) {
+    const state = data?.state || {};
+    const ruleRevision = state.rule_revision || {};
+    const log = Array.isArray(state.rule_update_log) ? state.rule_update_log : [];
+    const latestLog = log.length ? log[log.length - 1] : null;
+    const changes = Array.isArray(ruleRevision.changes)
+      ? ruleRevision.changes
+      : Array.isArray(latestLog?.changes)
+        ? latestLog.changes
+        : [];
+    const changeHtml = changes.length
+      ? changes
+          .map(
+            (item) => `
+              <div class="review-change-item">
+                <p><strong>${translateRulePath(item.path)}</strong></p>
+                <p>\u539f\u89c4\u5219\uff1a${item.before || ""}</p>
+                <p>\u5efa\u8bae\u4fee\u6539\uff1a${item.after || ""}</p>
+                <p>\u4fee\u6539\u539f\u56e0\uff1a${item.reason || ""}</p>
+              </div>
+            `
+          )
+          .join("")
+      : "<p>\u8282\u70b98\u672a\u8fd4\u56de\u53ef\u5c55\u793a\u7684\u89c4\u5219\u53d8\u66f4\u3002</p>";
+    const rerunResult = state.rerun_result || null;
+    const rerunHtml = data.status === "awaiting_review" || rerunResult
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u8be5\u98ce\u9669\u70b9\u7684\u7ed3\u679c</strong></p>
+            ${
+              rerunResult
+                ? `
+                    <p>\u539f\u7b49\u7ea7\uff1a${rerunResult.candidate_risk_level_before || ""}</p>
+                    <p>\u91cd\u65b0\u5224\u65ad\u7b49\u7ea7\uff1a${rerunResult.candidate_risk_level_after || ""}</p>
+                    <p>\u5224\u65ad\u4f9d\u636e\uff1a${rerunResult.basis_after || ""}</p>
+                  `
+                : `<p>\u5df2\u5b8c\u6210\u590d\u6838\u5904\u7406\u3002</p>`
+            }
+          </div>
+        `
+      : "";
+    const revisionHtml = ruleRevision.output_path || latestLog
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u8282\u70b98\u5efa\u8bae\u4fee\u6539\u7684\u89c4\u5219\uff08\u672a\u5199\u5165\u8282\u70b9\u4e8c\u89c4\u5219\uff09</strong></p>
+            <p>\u4fee\u6539\u4f9d\u636e\uff1a${ruleRevision.rationale || latestLog?.rationale || ""}</p>
+            ${changeHtml}
+            <button id="commit-rule-btn" class="primary-outline small" type="button">\u5199\u5165\u89c4\u5219\u5e93</button>
+            <span id="commit-rule-status" class="review-inline-status"></span>
+          </div>
+        `
+      : "";
+    return [
+      `<p><strong>\u590d\u6838\u72b6\u6001\uff1a</strong>${data.status === "completed" ? "\u5df2\u5b8c\u6210" : "\u5f85\u518d\u6b21\u590d\u6838"}</p>`,
+      `<p><strong>\u590d\u6838\u7ed3\u8bba\uff1a</strong>${state.review_decision === "approved" ? "\u6b63\u786e" : state.review_decision === "rejected" ? "\u9519\u8bef" : state.review_decision || ""}</p>`,
+      `<p><strong>\u98ce\u9669\u7ed3\u679c\uff1a</strong>${state.candidate_risk_level || ""}</p>`,
+      revisionHtml,
+      rerunHtml
+    ].join("");
   }
 
   async function loadInspectionTextRecords(point) {
@@ -690,196 +559,6 @@
     }
   }
 
-  function saveGradingResultsToCache(payload) {
-    if (!payload || !Array.isArray(payload.results) || !payload.results.length) {
-      return;
-    }
-    try {
-      const raw = window.localStorage.getItem(gradingCacheKey);
-      const existing = raw ? JSON.parse(raw) : null;
-      const existingResults = Array.isArray(existing?.results) ? existing.results : [];
-      const mergedMap = new Map(existingResults.map((item) => [item.point_id, item]));
-      payload.results.forEach((item) => {
-        if (item?.point_id) {
-          mergedMap.set(item.point_id, item);
-        }
-      });
-      const mergedPayload = {
-        generated_at: payload.generated_at || existing?.generated_at || null,
-        total: mergedMap.size,
-        results: Array.from(mergedMap.values())
-      };
-      window.localStorage.setItem(gradingCacheKey, JSON.stringify(mergedPayload));
-    } catch (error) {
-      // Ignore local storage write failures.
-    }
-  }
-
-  function loadGradingResultsFromCache() {
-    try {
-      const raw = window.localStorage.getItem(gradingCacheKey);
-      if (!raw) {
-        return false;
-      }
-      return applyGradingResults(JSON.parse(raw));
-    } catch (error) {
-      return false;
-    }
-  }
-
-  function hasCompletedGrading(point) {
-    if (!point) {
-      return false;
-    }
-    const basis = point.gradeResult?.basis;
-    return point.latestEvent === "规则分级" && (!!point.gradeResult?.explanation || Array.isArray(basis?.matched_evidence));
-  }
-
-  function applyGradingResults(payload) {
-    const results = Array.isArray(payload?.results) ? payload.results : [];
-    if (!results.length) {
-      return false;
-    }
-
-    const resultByPoint = new Map(results.map((item) => [item.point_id, item]));
-    appData.points = appData.points.map((point) => {
-      const result = resultByPoint.get(point.id);
-      if (!result) {
-        return point;
-      }
-      const riskLevel = result.risk_level || point.riskLevel;
-      return {
-        ...point,
-        riskLevel,
-        riskClass: result.risk_class || riskClassMap[riskLevel] || point.riskClass,
-        latestEvent: "规则分级",
-        latestTime: payload.generated_at || point.latestTime,
-        inspectionSummary: result.summary || point.inspectionSummary,
-        gradeResult: {
-          level: riskLevel,
-          desc: result.summary || `当前风险点判定为${riskLevel}风险。`,
-          explanation: result.explanation || "",
-          basis: result.grading_basis || {}
-        },
-        review: {
-          ...point.review,
-          note: result.suggestion || point.review.note
-        }
-      };
-    });
-
-    if (currentDetailPoint) {
-      const updated = appData.points.find((point) => point.id === currentDetailPoint.id);
-      if (updated) {
-        currentDetailPoint = { ...currentDetailPoint, ...updated };
-        document.getElementById("detail-basic").innerHTML = renderBasic(currentDetailPoint);
-        document.getElementById("detail-grade").innerHTML = renderGrade(currentDetailPoint);
-        document.getElementById("detail-review").innerHTML = renderReview(currentDetailPoint);
-      }
-    }
-    saveGradingResultsToCache(payload);
-    return true;
-  }
-
-  async function loadLatestGradingResults() {
-    try {
-      const payload = await loadJsonFile(gradingResultPath);
-      return applyGradingResults(payload);
-    } catch (error) {
-      return false;
-    }
-  }
-
-  function refreshAfterGrading() {
-    initDashboard();
-    setActiveTabs();
-    renderList();
-
-    if (!mapInstance || !window.L) {
-      return;
-    }
-
-    markerById.forEach((marker, pointId) => {
-      const point = appData.points.find((item) => item.id === pointId);
-      if (!point) {
-        return;
-      }
-      marker.setIcon(
-        window.L.divIcon({
-          className: "map-marker-wrap",
-          html: buildMarkerHtml(point),
-          iconSize: [28, 28],
-          iconAnchor: [14, 14],
-          popupAnchor: [0, -14]
-        })
-      );
-      marker.setPopupContent(buildPopupHtml(point));
-    });
-    showMarkersByType(currentType);
-  }
-
-  async function runOneClickGrading() {
-    if (!oneClickGradingBtn) {
-      return;
-    }
-
-    const originalText = oneClickGradingBtn.textContent;
-    const pointIds = appData.points.map((point) => point.id);
-    oneClickGradingBtn.disabled = true;
-    oneClickGradingBtn.textContent = "分级中 0/" + pointIds.length;
-    try {
-      for (let index = 0; index < pointIds.length; index += 1) {
-        const pointId = pointIds[index];
-        oneClickGradingBtn.textContent = `分级中 ${index + 1}/${pointIds.length}`;
-        const payload = await runGradingBatch([pointId]);
-        applyGradingResults(payload);
-        refreshAfterGrading();
-      }
-      oneClickGradingBtn.textContent = "分级完成";
-    } catch (error) {
-      window.alert(
-        `一键分级没有执行成功：${error.message || "未知错误"}\n请确认通过 python -m risk_workflow.rules.node5.server 启动页面，并且 .env 中的 OPENAI_API_KEY / OPENAI_BASE_URL 可用。`
-      );
-    } finally {
-      window.setTimeout(() => {
-        oneClickGradingBtn.disabled = false;
-        oneClickGradingBtn.textContent = originalText;
-      }, 800);
-    }
-  }
-
-  async function runGradingBatch(pointIds) {
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 360000);
-    try {
-      const response = await fetch("/api/grading/run", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        cache: "no-store",
-        signal: controller.signal,
-        body: JSON.stringify({ point_ids: pointIds })
-      });
-      if (!response.ok) {
-        let message = `HTTP ${response.status}`;
-        try {
-          const errorPayload = await response.json();
-          message = errorPayload.error || errorPayload.message || message;
-        } catch (parseError) {
-          // Keep the HTTP status if the server did not return JSON.
-        }
-        throw new Error(`${pointIds.join(", ")}：${message}`);
-      }
-      return await response.json();
-    } catch (error) {
-      if (error.name === "AbortError") {
-        throw new Error(`${pointIds.join(", ")}：分级请求超过 360 秒未返回`);
-      }
-      throw error;
-    } finally {
-      window.clearTimeout(timeoutId);
-    }
-  }
-
   function getPointsByType(type) {
     return appData.points.filter((item) => item.type === type);
   }
@@ -898,73 +577,11 @@
     const slopeCount = getPointsByType("边坡").length;
     const riskCount = getRiskCounts(appData.points);
 
-    initTimeRangeSelect();
-    startDashboardClock();
+    currentTimeEl.textContent = appData.dashboard.currentTime;
     monitorCountEl.textContent = appData.points.length;
     typeBreakdownEl.textContent = `${bridgeCount} / ${slopeCount}`;
     alertBreakdownEl.textContent = `${riskCount["I级"]} 高 · ${riskCount["II级"]} 中 · ${riskCount["III级"] + riskCount["IV级"]} 低`;
     listSummaryEl.textContent = `桥梁：${bridgeCount} 处 | 边坡：${slopeCount} 处`;
-  }
-
-  function padNumber(value) {
-    return String(value).padStart(2, "0");
-  }
-
-  function formatDate(value) {
-    return `${value.getFullYear()}-${padNumber(value.getMonth() + 1)}-${padNumber(value.getDate())}`;
-  }
-
-  function formatDateTime(value) {
-    return `${formatDate(value)} ${padNumber(value.getHours())}:${padNumber(value.getMinutes())}:${padNumber(value.getSeconds())}`;
-  }
-
-  function formatDuration(milliseconds) {
-    const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}`;
-  }
-
-  function getNextGradingTime(now) {
-    const next = new Date(now);
-    next.setHours(8, 0, 0, 0);
-    if (next <= now) {
-      next.setDate(next.getDate() + 1);
-    }
-    return next;
-  }
-
-  function updateDashboardClock() {
-    const now = new Date();
-    const nextGradingTime = getNextGradingTime(now);
-    if (currentTimeEl) {
-      currentTimeEl.textContent = formatDateTime(now);
-    }
-    if (gradingCountdownEl) {
-      gradingCountdownEl.textContent = formatDuration(nextGradingTime - now);
-    }
-  }
-
-  function startDashboardClock() {
-    updateDashboardClock();
-    if (dashboardTimer) {
-      window.clearInterval(dashboardTimer);
-    }
-    dashboardTimer = window.setInterval(updateDashboardClock, 1000);
-  }
-
-  function collectAvailableDates() {
-    return [formatDate(new Date())];
-  }
-
-  function initTimeRangeSelect() {
-    if (!timeRangeSelectEl) {
-      return;
-    }
-
-    const dates = collectAvailableDates();
-    timeRangeSelectEl.innerHTML = dates.map((label) => `<option value="${label}"></option>`).join("");
   }
 
   function setActiveTabs() {
@@ -1011,31 +628,6 @@
     `;
   }
 
-  function getMarkerLngLat(point) {
-    const lngLat = parseLngLat(point.lnglat);
-    if (!lngLat) {
-      return null;
-    }
-    const sameTypePoints = appData.points.filter((item) => item.type === point.type);
-    const closePoints = sameTypePoints.filter((item) => {
-      const other = parseLngLat(item.lnglat);
-      if (!other) {
-        return false;
-      }
-      return Math.abs(other.lng - lngLat.lng) < 0.04 && Math.abs(other.lat - lngLat.lat) < 0.04;
-    });
-    if (closePoints.length <= 1) {
-      return lngLat;
-    }
-    const index = closePoints.findIndex((item) => item.id === point.id);
-    const angle = (Math.PI * 2 * Math.max(index, 0)) / closePoints.length;
-    const radius = 0.055;
-    return {
-      lng: lngLat.lng + Math.cos(angle) * radius,
-      lat: lngLat.lat + Math.sin(angle) * radius
-    };
-  }
-
   function buildPopupHtml(point) {
     return `
       <div class="map-popup">
@@ -1053,93 +645,6 @@
         <p>${message || "当前无法加载广西地图数据，但仍可使用左侧列表查看详情。"}</p>
       </div>
     `;
-  }
-
-  function renderCoordinateMapFallback(message) {
-    const points = appData.points
-      .map((point) => ({ point, lngLat: parseLngLat(point.lnglat) }))
-      .filter((item) => item.lngLat);
-    const lngValues = points.map((item) => item.lngLat.lng);
-    const latValues = points.map((item) => item.lngLat.lat);
-    const minLng = Math.min(104.4, ...lngValues);
-    const maxLng = Math.max(112.1, ...lngValues);
-    const minLat = Math.min(20.8, ...latValues);
-    const maxLat = Math.max(26.4, ...latValues);
-    const lngSpan = maxLng - minLng || 1;
-    const latSpan = maxLat - minLat || 1;
-
-    const markers = points
-      .map(({ point, lngLat }) => {
-        const x = ((lngLat.lng - minLng) / lngSpan) * 88 + 6;
-        const y = 94 - ((lngLat.lat - minLat) / latSpan) * 88;
-        return `
-          <button
-            class="fallback-map-marker ${point.riskClass}"
-            type="button"
-            style="left:${x}%;top:${y}%"
-            data-point-id="${point.id}"
-            title="${point.name} ${point.riskLevel}"
-          ></button>
-        `;
-      })
-      .join("");
-
-    mapRootEl.innerHTML = `
-      <div class="fallback-map">
-        <div class="fallback-map-shape" aria-hidden="true">
-          <svg viewBox="0 0 640 420" preserveAspectRatio="none">
-            <path d="M96 104 L210 42 L382 58 L532 124 L578 238 L496 352 L318 386 L150 318 L58 208 Z"></path>
-            <path d="M140 138 L262 104 L438 126 M116 218 L274 202 L520 226 M178 302 L354 286 L472 316"></path>
-          </svg>
-        </div>
-        ${markers}
-        <div class="fallback-map-note">${message || "地图边界数据未加载，已显示检测点坐标分布。"}</div>
-      </div>
-    `;
-
-    mapRootEl.querySelectorAll("[data-point-id]").forEach((marker) => {
-      marker.addEventListener("click", function () {
-        const point = appData.points.find((item) => item.id === marker.dataset.pointId);
-        if (!point) {
-          return;
-        }
-        currentType = point.type;
-        setActiveTabs();
-        renderList();
-        setActivePoint(point.id);
-        openDetail(point);
-      });
-    });
-  }
-
-  async function loadGuangxiGeoJson() {
-    const candidates = ["./data/guangxi.json", "/front/data/guangxi.json", "data/guangxi.json"];
-    let lastError = null;
-
-    for (const path of candidates) {
-      try {
-        const response = await fetch(path);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return await response.json();
-      } catch (error) {
-        lastError = error;
-      }
-    }
-
-    throw lastError || new Error("Guangxi GeoJSON unavailable");
-  }
-
-  function buildProvinceFeature(cityFeatures) {
-    if (!cityFeatures.length) {
-      return null;
-    }
-
-    return {
-      type: "FeatureCollection",
-      features: cityFeatures
-    };
   }
 
   function buildRegionLabel(feature) {
@@ -1168,7 +673,7 @@
 
       if (point.type === type) {
         marker.addTo(mapInstance);
-        const lngLat = getMarkerLngLat(point);
+        const lngLat = parseLngLat(point.lnglat);
         if (lngLat) {
           bounds.push([lngLat.lat, lngLat.lng]);
         }
@@ -1212,7 +717,7 @@
     marker.getElement()?.classList.add("is-active");
     marker.openPopup();
 
-    const lngLat = getMarkerLngLat(point);
+    const lngLat = parseLngLat(point.lnglat);
     if (lngLat) {
       mapInstance.flyTo([lngLat.lat, lngLat.lng], Math.max(mapInstance.getZoom(), 9), {
         duration: 0.8
@@ -1222,7 +727,7 @@
 
   async function renderMap() {
     if (!window.L || !mapRootEl) {
-      renderCoordinateMapFallback("地图组件未加载，已显示检测点坐标分布。");
+      renderMapFallback("地图组件未加载。");
       return;
     }
 
@@ -1234,11 +739,14 @@
     mapInstance.setView([22.9, 108.3], 7);
 
     try {
-      const geoJson = await loadGuangxiGeoJson();
-      const features = Array.isArray(geoJson.features) ? geoJson.features : [];
-      const provinceFeature =
-        features.find((feature) => feature.properties?.level === 1) || buildProvinceFeature(features);
-      const cityFeatures = features.filter((feature) => feature.properties?.level === 2);
+      const response = await fetch("./data/guangxi.json");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const geoJson = await response.json();
+      const provinceFeature = geoJson.features.find((feature) => feature.properties?.level === 1);
+      const cityFeatures = geoJson.features.filter((feature) => feature.properties?.level === 2);
 
       window.L.geoJSON(cityFeatures, {
         style: function () {
@@ -1277,16 +785,12 @@
         }
       }
     } catch (error) {
-      if (mapInstance) {
-        mapInstance.remove();
-        mapInstance = null;
-      }
-      renderCoordinateMapFallback("广西地图边界数据加载失败，已显示检测点坐标分布。");
+      renderMapFallback("广西地图边界数据加载失败。");
       return;
     }
 
     appData.points.forEach((point) => {
-      const lngLat = getMarkerLngLat(point);
+      const lngLat = parseLngLat(point.lnglat);
       if (!lngLat) {
         return;
       }
@@ -1404,13 +908,11 @@
         <div>
           <h3>分级结果</h3>
         </div>
-        <button class="primary-outline small" type="button" data-open-grade-page="true">查看详情</button>
+        <button class="primary-outline small" type="button">查看详情</button>
       </div>
       <div class="grade-result">
         <div class="grade-badge ${point.riskClass}">${point.gradeResult.level}</div>
-        <div class="grade-brief">
-          <strong>${point.gradeResult.desc}</strong>
-        </div>
+        <p>${point.gradeResult.desc}</p>
       </div>
     `;
   }
@@ -1422,7 +924,7 @@
           <h3>复核学习</h3>
           <p>${point.review.text}</p>
         </div>
-        <button class="primary-btn small" type="button" data-open-review-form="true">填写内容</button>
+        <button class="primary-btn small" type="button" data-open-review-form="true">\u8fdb\u5165\u590d\u6838\u8868\u5355</button>
       </div>
       <div class="review-box">
         <p>${point.review.note}</p>
@@ -1434,7 +936,6 @@
     detailOverviewEl.classList.remove("hidden");
     detailReviewPageEl.classList.add("hidden");
     detailInspectionPageEl.classList.add("hidden");
-    detailGradePageEl.classList.add("hidden");
   }
 
   function showReviewView(point) {
@@ -1442,12 +943,12 @@
     detailOverviewEl.classList.add("hidden");
     detailReviewPageEl.classList.remove("hidden");
     detailInspectionPageEl.classList.add("hidden");
-    detailGradePageEl.classList.add("hidden");
     reviewPageSubtitleEl.textContent = point.locationText || point.name;
     reviewNodeGradeEl.value = point.gradeResult.level;
     reviewManualGradeEl.value = point.gradeResult.level;
     reviewRemarkEl.value = "";
     reviewResultPanelEl.textContent = "暂无复核结果。";
+    startReviewWorkflow(point);
   }
 
   function showInspectionView(point) {
@@ -1455,7 +956,6 @@
     detailOverviewEl.classList.add("hidden");
     detailReviewPageEl.classList.add("hidden");
     detailInspectionPageEl.classList.remove("hidden");
-    detailGradePageEl.classList.add("hidden");
     inspectionPageSubtitleEl.textContent = point.locationText || point.name;
     inspectionSummaryPanelEl.innerHTML = `
       <div class="inspection-summary-meta">
@@ -1479,140 +979,127 @@
       : '<div class="empty-graph">当前未接入巡检记录详情</div>';
   }
 
-  function renderListItems(items, emptyText) {
-    if (!items?.length) {
-      return `<div class="grade-empty">${emptyText}</div>`;
-    }
-    return items
-      .map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`)
-      .join("");
-  }
-
-  function formatEvidenceSentence(value) {
-    const text = String(value || "").trim();
-    if (!text) {
-      return "暂无";
-    }
-    const arrowMatch = text.match(/^(.+?)\s*--(.+?)-->\s*(.+)$/);
-    if (arrowMatch) {
-      return `${arrowMatch[1].trim()}的${arrowMatch[2].trim()}为${arrowMatch[3].trim()}。`;
-    }
-    const tripleMatch = text.match(/^\[?['"]?([^,'"\]]+)['"]?\s*,\s*['"]?([^,'"\]]+)['"]?\s*,\s*['"]?([^,'"\]]+)['"]?\]?$/);
-    if (tripleMatch) {
-      return `${tripleMatch[1].trim()}的${tripleMatch[2].trim()}为${tripleMatch[3].trim()}。`;
-    }
-    return text;
-  }
-
-  function renderEvidenceRuleMatches(items) {
-    if (!items?.length) {
-      return '<div class="grade-empty">暂无命中证据。</div>';
-    }
-    return items
-      .map((item) => {
-        if (typeof item === "string") {
-          return `
-            <li class="evidence-match-item">
-              <p>${escapeHtml(item)}</p>
-            </li>
-          `;
-        }
-        const evidenceText = formatEvidenceSentence(item.evidence_sentence || item.kg_evidence || item.evidence);
-        const disasterType = item.disaster_type || item.hazard_type || "";
-        const ruleText = item.rule_text || "";
-        const reasoning = item.reasoning || "";
-        return `
-          <li class="evidence-match-item">
-            <p>${escapeHtml(evidenceText)}</p>
-            ${disasterType ? `<span>对应灾害类型：${escapeHtml(disasterType)}</span>` : ""}
-            ${ruleText ? `<span>对应规则：${escapeHtml(ruleText)}</span>` : ""}
-            ${reasoning ? `<small>${escapeHtml(reasoning)}</small>` : ""}
-          </li>
-        `;
-      })
-      .join("");
-  }
-
-  function renderEvidenceRuleTexts(items) {
-    const rows = (items || [])
-      .filter((item) => item && typeof item === "object" && item.rule_text)
-      .map((item) => ({
-        evidence: formatEvidenceSentence(item.evidence_sentence || item.kg_evidence || item.evidence),
-        disasterType: item.disaster_type || item.hazard_type || "",
-        ruleText: item.rule_text
-      }));
-
-    if (!rows.length) {
-      return '<div class="grade-empty">暂无证据对应的规则文本。</div>';
-    }
-
-    return `
-      <ul class="evidence-rule-text-list">
-        ${rows
-          .map(
-            (row) => `
-              <li>
-                <p>${escapeHtml(row.ruleText)}</p>
-                <span>对应证据：${escapeHtml(row.evidence)}</span>
-                ${row.disasterType ? `<small>对应灾害类型：${escapeHtml(row.disasterType)}</small>` : ""}
-              </li>
-            `
-          )
-          .join("")}
-      </ul>
-    `;
-  }
-
-  function showGradeView(point) {
-    currentDetailPoint = point;
-    const basis = point.gradeResult.basis || {};
-    const evidence = basis.matched_evidence || [];
-
-    detailOverviewEl.classList.add("hidden");
-    detailReviewPageEl.classList.add("hidden");
-    detailInspectionPageEl.classList.add("hidden");
-    detailGradePageEl.classList.remove("hidden");
-    gradePageSubtitleEl.textContent = `${point.name} · ${point.type}`;
-
-    gradeDetailPanelEl.innerHTML = `
-      <section class="grade-hero">
-        <div class="grade-hero-main">
-          <div class="grade-badge ${point.riskClass}">${point.gradeResult.level}</div>
-          <div>
-            <p>分级结论</p>
-            <h4>${escapeHtml(point.gradeResult.desc)}</h4>
-          </div>
-        </div>
-      </section>
-
-      <section class="grade-section">
-        <div class="grade-section-head">
-          <h4>命中证据与规则对应</h4>
-          <span>${evidence.length} 条</span>
-        </div>
-        <ul class="evidence-match-list">${renderEvidenceRuleMatches(evidence)}</ul>
-      </section>
-
-      <section class="grade-section">
-        <div class="grade-section-head">
-          <h4>证据对应的规则文本</h4>
-          <span>${evidence.filter((item) => item?.rule_text).length} 条</span>
-        </div>
-        ${renderEvidenceRuleTexts(evidence)}
-      </section>
-
-      <section class="grade-section">
-        <div class="grade-section-head">
-          <h4>解释说明</h4>
-        </div>
-        <p class="grade-explanation">${escapeHtml(point.gradeResult.explanation || point.gradeResult.desc)}</p>
-      </section>
-    `;
-  }
-
   function collectCheckedValue(name) {
     const target = document.querySelector(`input[name="${name}"]:checked`);
     return target ? target.value : "";
+  }
+
+  function isReviewMarkedCorrect() {
+    const options = Array.from(document.querySelectorAll('input[name="review-correct"]'));
+    const checkedIndex = options.findIndex((item) => item.checked);
+    return checkedIndex === 0;
+  }
+
+  function ensureReviewActionButtons() {
+    if (!reviewSubmitBtn) {
+      return;
+    }
+    reviewSubmitBtn.disabled = false;
+    reviewSubmitBtn.textContent = "\u63d0\u4ea4\u590d\u6838";
+    const bindSaveDraft = (saveBtn) => {
+      if (!saveBtn || saveBtn.dataset.bound === "true") {
+        return;
+      }
+      saveBtn.dataset.bound = "true";
+      saveBtn.addEventListener("click", function () {
+        const summary = [
+          `\u8282\u70b9\u7b49\u7ea7\uff1a${reviewNodeGradeEl.value}`,
+          `\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${reviewManualGradeEl.value}`,
+          `\u4eba\u5de5\u7ed3\u8bba\uff1a${collectCheckedValue("review-conclusion")}`,
+          `\u662f\u5426\u6b63\u786e\uff1a${collectCheckedValue("review-correct")}`,
+          `\u5907\u6ce8\uff1a${reviewRemarkEl.value || "\u65e0"}`
+        ];
+        reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
+      });
+    };
+    const existingSaveBtn = document.getElementById("review-save-btn");
+    if (reviewSubmitBtn.parentElement?.classList.contains("review-actions")) {
+      bindSaveDraft(existingSaveBtn);
+      const existingHistorySelect = document.getElementById("review-history-select");
+      if (existingHistorySelect && !existingHistorySelect.dataset.loaded) {
+        existingHistorySelect.dataset.loaded = "true";
+        loadReviewHistoryOptions(existingHistorySelect);
+      }
+      return;
+    }
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    const historySelect = document.createElement("select");
+    historySelect.id = "review-history-select";
+    historySelect.className = "review-history-select";
+    historySelect.innerHTML = `<option value="">\u9009\u62e9\u5386\u53f2\u5ba1\u6838</option>`;
+    const historyBtn = document.createElement("button");
+    historyBtn.id = "review-history-btn";
+    historyBtn.className = "ghost-btn";
+    historyBtn.type = "button";
+    historyBtn.textContent = "\u67e5\u770b\u5386\u53f2\u5ba1\u6838";
+    historyBtn.addEventListener("click", function () {
+      const item = reviewHistoryItems[Number(historySelect.value)];
+      if (!item) {
+        reviewResultPanelEl.innerHTML = `<p>\u8bf7\u5148\u9009\u62e9\u4e00\u6761\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u3002</p>`;
+        return;
+      }
+      reviewResultPanelEl.innerHTML = renderHistoryItem(item);
+    });
+    const saveBtn = document.createElement("button");
+    saveBtn.id = "review-save-btn";
+    saveBtn.className = "ghost-btn";
+    saveBtn.type = "button";
+    saveBtn.textContent = "\u4fdd\u5b58\u586b\u5199\u5185\u5bb9";
+    bindSaveDraft(saveBtn);
+    reviewSubmitBtn.parentNode.insertBefore(actions, reviewSubmitBtn);
+    actions.appendChild(historySelect);
+    actions.appendChild(historyBtn);
+    actions.appendChild(saveBtn);
+    actions.appendChild(reviewSubmitBtn);
+    loadReviewHistoryOptions(historySelect);
+  }
+
+  async function submitManualReview() {
+    const isCorrect = isReviewMarkedCorrect();
+    const reviewPayload = {
+      is_correct: isCorrect,
+      manual_grade: reviewManualGradeEl.value,
+      conclusion: collectCheckedValue("review-conclusion"),
+      basis: reviewRemarkEl.value || "",
+      comment: reviewRemarkEl.value || ""
+    };
+
+    reviewResultPanelEl.textContent = "\u5df2\u6536\u5230\u63d0\u4ea4\u590d\u6838\uff0c\u6b63\u5728\u5904\u7406...";
+
+    if (!workflowSession?.thread_id && currentDetailPoint) {
+      reviewSubmitBtn.disabled = true;
+      reviewResultPanelEl.textContent = "\u590d\u6838\u4f1a\u8bdd\u5c1a\u672a\u5efa\u7acb\uff0c\u6b63\u5728\u5148\u751f\u6210\u8282\u70b9\u4e03\u5f85\u590d\u6838\u8f93\u5165...";
+      await startReviewWorkflow(currentDetailPoint);
+      reviewSubmitBtn.disabled = false;
+    }
+
+    if (workflowSession?.thread_id) {
+      reviewSubmitBtn.disabled = true;
+      reviewResultPanelEl.textContent = "\u6b63\u5728\u63d0\u4ea4\u4eba\u5de5\u590d\u6838...";
+      try {
+        const data = await postJson("/api/workflow/review", {
+          thread_id: workflowSession.thread_id,
+          review: reviewPayload
+        });
+        workflowSession = data;
+        reviewResultPanelEl.innerHTML = renderWorkflowSubmitResult(data);
+      } catch (error) {
+        reviewResultPanelEl.innerHTML = `<p>\u63d0\u4ea4\u590d\u6838\u5931\u8d25\uff1a${error.message}</p>`;
+      } finally {
+        reviewSubmitBtn.disabled = false;
+      }
+      return;
+    }
+
+    const summary = [
+      `\u8282\u70b9\u7b49\u7ea7\uff1a${reviewNodeGradeEl.value}`,
+      `\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${reviewManualGradeEl.value}`,
+      `\u4eba\u5de5\u7ed3\u8bba\uff1a${collectCheckedValue("review-conclusion")}`,
+      `\u662f\u5426\u6b63\u786e\uff1a${collectCheckedValue("review-correct")}`,
+      `\u5907\u6ce8\uff1a${reviewRemarkEl.value || "\u65e0"}`
+    ];
+    reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
   }
 
   function renderGraph(containerId, graph) {
@@ -1623,70 +1110,25 @@
     }
 
     function getNodeWidth(node) {
-      const titleLength = String(node.label || "").length;
-      const typeLength = String(node.typeLabel || "").length;
-      return Math.max(176, Math.min(280, 92 + Math.max(titleLength, typeLength) * 16));
+      return Math.max(148, Math.min(220, 84 + node.label.length * 16));
     }
 
-    function getNodeHeight(node) {
-      return node.summary ? 104 : 92;
-    }
-
-    function getEdgePath(from, to, bend) {
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      const normalX = (-dy / distance) * bend;
-      const normalY = (dx / distance) * bend;
-      const cx = (from.x + to.x) / 2 + normalX;
-      const cy = (from.y + to.y) / 2 + normalY;
-      return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
-    }
-
-    function getQuadraticPoint(from, to, bend, t) {
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      const normalX = (-dy / distance) * bend;
-      const normalY = (dx / distance) * bend;
-      const cx = (from.x + to.x) / 2 + normalX;
-      const cy = (from.y + to.y) / 2 + normalY;
-      const oneMinusT = 1 - t;
-      return {
-        x: oneMinusT * oneMinusT * from.x + 2 * oneMinusT * t * cx + t * t * to.x,
-        y: oneMinusT * oneMinusT * from.y + 2 * oneMinusT * t * cy + t * t * to.y
-      };
-    }
-
-    const outgoingCount = new Map();
-    const incomingCount = new Map();
-    const markerId = `${containerId}-graph-arrow`;
     const lines = graph.links
       .map((link, index) => {
         const from = graph.nodes[link.from];
         const to = graph.nodes[link.to];
-        if (!from || !to) {
-          return "";
-        }
-        const outgoingIndex = outgoingCount.get(link.from) || 0;
-        const incomingIndex = incomingCount.get(link.to) || 0;
-        outgoingCount.set(link.from, outgoingIndex + 1);
-        incomingCount.set(link.to, incomingIndex + 1);
-
-        const fanOffset = (outgoingIndex - incomingIndex) * 14;
-        const bendBase = Math.min(88, 30 + Math.abs(to.x - from.x) * 0.045 + Math.abs(to.y - from.y) * 0.02);
-        const bendDirection = index % 2 === 0 ? 1 : -1;
-        const bend = bendDirection * bendBase + fanOffset;
-        const labelT = 0.38 + Math.min(0.24, outgoingIndex * 0.08);
-        const midPoint = getQuadraticPoint(from, to, bend, labelT);
-        const labelText = escapeHtml(link.text);
-        const labelWidth = Math.max(86, Math.min(220, 38 + String(link.text || "").length * 20));
-        const edgePath = getEdgePath(from, to, bend);
+        const tx = (from.x + to.x) / 2;
+        const ty = (from.y + to.y) / 2;
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const offsetX = (dy / len) * 16;
+        const offsetY = (-dx / len) * 16;
         return `
-          <g class="graph-edge-group" data-edge-index="${index}" style="animation-delay:${index * 120}ms">
-            <path class="graph-edge" d="${edgePath}" marker-end="url(#${markerId})"></path>
-            <rect class="graph-edge-label-bg" x="${midPoint.x - labelWidth / 2}" y="${midPoint.y - 18}" rx="16" ry="16" width="${labelWidth}" height="36"></rect>
-            <text class="graph-edge-label" x="${midPoint.x}" y="${midPoint.y + 5}">${labelText}</text>
+          <g class="graph-edge-group" style="animation-delay:${index * 120}ms">
+            <line class="graph-edge" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"></line>
+            <rect class="graph-edge-label-bg" x="${tx - 50 + offsetX}" y="${ty - 16 + offsetY}" rx="12" ry="12" width="100" height="30"></rect>
+            <text class="graph-edge-label" x="${tx + offsetX}" y="${ty + 4 + offsetY}">${link.text}</text>
           </g>
         `;
       })
@@ -1695,20 +1137,16 @@
     const nodes = graph.nodes
       .map((node, index) => {
         const width = getNodeWidth(node);
-        const height = getNodeHeight(node);
         const x = node.x - width / 2;
-        const y = node.y - height / 2;
-        const summaryRow = node.summary
-          ? `<text class="graph-node-summary" x="${x + 20}" y="${y + height - 16}">${escapeHtml(node.summary)}</text>`
-          : "";
+        const y = node.y - 42;
         return `
-          <g class="graph-node-card ${node.kind} ${node.isFocus ? "is-focus" : ""}" data-node-index="${index}" style="animation-delay:${index * 90}ms">
-            <circle class="graph-node-halo" cx="${node.x}" cy="${node.y}" r="${node.isFocus ? 70 : 58}"></circle>
-            <rect class="graph-node-box" x="${x}" y="${y}" rx="26" ry="26" width="${width}" height="${height}"></rect>
-            <text class="graph-node-badge" x="${x + 20}" y="${y + 24}">${escapeHtml(node.typeLabel || "节点")}</text>
-            <text class="graph-node-title" x="${x + 20}" y="${y + 52}">${escapeHtml(node.label)}</text>
-            <text class="graph-node-meta" x="${x + 20}" y="${y + 78}">${escapeHtml(node.role || "图谱节点")} · ${node.degree} 条关联</text>
-            ${summaryRow}
+          <g class="graph-node-card ${node.kind}" style="animation-delay:${index * 90}ms">
+            <circle class="graph-node-halo" cx="${node.x}" cy="${node.y}" r="52"></circle>
+            <rect class="graph-node-box" x="${x}" y="${y}" rx="22" ry="22" width="${width}" height="84"></rect>
+            <circle class="graph-node-dot" cx="${x + 22}" cy="${y + 24}" r="7"></circle>
+            <text class="graph-node-title" x="${x + 38}" y="${y + 30}">${node.label}</text>
+            <text class="graph-node-meta" x="${x + 18}" y="${y + 58}">${node.role}</text>
+            <text class="graph-node-meta sub" x="${x + 18}" y="${y + 76}">关联度 ${node.degree}</text>
           </g>
         `;
       })
@@ -1717,9 +1155,9 @@
     container.innerHTML = `
       <div class="graph-interact-hint">滚轮缩放，拖拽平移，双击重置</div>
       <div class="graph-canvas" data-graph-canvas="true">
-        <svg viewBox="0 0 1320 1560" preserveAspectRatio="xMidYMid meet">
+        <svg viewBox="0 0 1280 1040" preserveAspectRatio="xMidYMid meet">
           <defs>
-            <marker id="${markerId}" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <marker id="graph-arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
               <path d="M0,0 L12,6 L0,12 z" class="graph-arrow-head"></path>
             </marker>
           </defs>
@@ -1729,10 +1167,10 @@
       </div>
     `;
 
-    bindGraphInteractions(container, graph);
+    bindGraphInteractions(container);
   }
 
-  function bindGraphInteractions(container, graph) {
+  function bindGraphInteractions(container) {
     const canvas = container.querySelector("[data-graph-canvas='true']");
     const svg = canvas?.querySelector("svg");
     if (!canvas || !svg) {
@@ -1745,154 +1183,6 @@
     let isDragging = false;
     let startX = 0;
     let startY = 0;
-    let draggingNodeIndex = null;
-
-    const workingGraph = {
-      ...graph,
-      nodes: graph.nodes.map((node) => ({ ...node })),
-      links: graph.links.map((link) => ({ ...link }))
-    };
-    const nodeElements = Array.from(container.querySelectorAll("[data-node-index]"));
-    const edgeElements = Array.from(container.querySelectorAll("[data-edge-index]"));
-
-    function getNodeWidth(node) {
-      const titleLength = String(node.label || "").length;
-      const typeLength = String(node.typeLabel || "").length;
-      return Math.max(176, Math.min(280, 92 + Math.max(titleLength, typeLength) * 16));
-    }
-
-    function getNodeHeight(node) {
-      return node.summary ? 104 : 92;
-    }
-
-    function getEdgePath(from, to, bend) {
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      const normalX = (-dy / distance) * bend;
-      const normalY = (dx / distance) * bend;
-      const cx = (from.x + to.x) / 2 + normalX;
-      const cy = (from.y + to.y) / 2 + normalY;
-      return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
-    }
-
-    function getQuadraticPoint(from, to, bend, t) {
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
-      const normalX = (-dy / distance) * bend;
-      const normalY = (dx / distance) * bend;
-      const cx = (from.x + to.x) / 2 + normalX;
-      const cy = (from.y + to.y) / 2 + normalY;
-      const oneMinusT = 1 - t;
-      return {
-        x: oneMinusT * oneMinusT * from.x + 2 * oneMinusT * t * cx + t * t * to.x,
-        y: oneMinusT * oneMinusT * from.y + 2 * oneMinusT * t * cy + t * t * to.y
-      };
-    }
-
-    function recomputeEdgeGeometry() {
-      const outgoingCount = new Map();
-      const incomingCount = new Map();
-
-      workingGraph.links.forEach((link, index) => {
-        const edgeGroup = edgeElements[index];
-        const from = workingGraph.nodes[link.from];
-        const to = workingGraph.nodes[link.to];
-        if (!edgeGroup || !from || !to) {
-          return;
-        }
-
-        const outgoingIndex = outgoingCount.get(link.from) || 0;
-        const incomingIndex = incomingCount.get(link.to) || 0;
-        outgoingCount.set(link.from, outgoingIndex + 1);
-        incomingCount.set(link.to, incomingIndex + 1);
-
-        const fanOffset = (outgoingIndex - incomingIndex) * 14;
-        const bendBase = Math.min(88, 30 + Math.abs(to.x - from.x) * 0.045 + Math.abs(to.y - from.y) * 0.02);
-        const bendDirection = index % 2 === 0 ? 1 : -1;
-        const bend = bendDirection * bendBase + fanOffset;
-        const labelT = 0.38 + Math.min(0.24, outgoingIndex * 0.08);
-        const midPoint = getQuadraticPoint(from, to, bend, labelT);
-        const labelWidth = Math.max(86, Math.min(220, 38 + String(link.text || "").length * 20));
-        const edgePath = getEdgePath(from, to, bend);
-
-        const pathEl = edgeGroup.querySelector(".graph-edge");
-        const rectEl = edgeGroup.querySelector(".graph-edge-label-bg");
-        const textEl = edgeGroup.querySelector(".graph-edge-label");
-        if (pathEl) {
-          pathEl.setAttribute("d", edgePath);
-        }
-        if (rectEl) {
-          rectEl.setAttribute("x", String(midPoint.x - labelWidth / 2));
-          rectEl.setAttribute("y", String(midPoint.y - 18));
-          rectEl.setAttribute("width", String(labelWidth));
-          rectEl.setAttribute("height", "36");
-        }
-        if (textEl) {
-          textEl.setAttribute("x", String(midPoint.x));
-          textEl.setAttribute("y", String(midPoint.y + 5));
-        }
-      });
-    }
-
-    function updateNodeGeometry(nodeIndex) {
-      const node = workingGraph.nodes[nodeIndex];
-      const nodeGroup = nodeElements[nodeIndex];
-      if (!node || !nodeGroup) {
-        return;
-      }
-
-      const width = getNodeWidth(node);
-      const height = getNodeHeight(node);
-      const x = node.x - width / 2;
-      const y = node.y - height / 2;
-
-      const haloEl = nodeGroup.querySelector(".graph-node-halo");
-      const boxEl = nodeGroup.querySelector(".graph-node-box");
-      const badgeEl = nodeGroup.querySelector(".graph-node-badge");
-      const titleEl = nodeGroup.querySelector(".graph-node-title");
-      const metaEl = nodeGroup.querySelector(".graph-node-meta");
-      const summaryEl = nodeGroup.querySelector(".graph-node-summary");
-
-      if (haloEl) {
-        haloEl.setAttribute("cx", String(node.x));
-        haloEl.setAttribute("cy", String(node.y));
-      }
-      if (boxEl) {
-        boxEl.setAttribute("x", String(x));
-        boxEl.setAttribute("y", String(y));
-        boxEl.setAttribute("width", String(width));
-        boxEl.setAttribute("height", String(height));
-      }
-      if (badgeEl) {
-        badgeEl.setAttribute("x", String(x + 20));
-        badgeEl.setAttribute("y", String(y + 24));
-      }
-      if (titleEl) {
-        titleEl.setAttribute("x", String(x + 20));
-        titleEl.setAttribute("y", String(y + 52));
-      }
-      if (metaEl) {
-        metaEl.setAttribute("x", String(x + 20));
-        metaEl.setAttribute("y", String(y + 78));
-      }
-      if (summaryEl) {
-        summaryEl.setAttribute("x", String(x + 20));
-        summaryEl.setAttribute("y", String(y + height - 16));
-      }
-    }
-
-    function clientPointToSvgPoint(clientX, clientY) {
-      const point = svg.createSVGPoint();
-      point.x = clientX;
-      point.y = clientY;
-      const screenCTM = svg.getScreenCTM();
-      if (!screenCTM) {
-        return { x: 0, y: 0 };
-      }
-      return point.matrixTransform(screenCTM.inverse());
-    }
 
     function applyTransform() {
       svg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
@@ -1917,35 +1207,13 @@
     );
 
     canvas.addEventListener("mousedown", function (event) {
-      if (event.target.closest("[data-node-index]")) {
-        return;
-      }
       isDragging = true;
       startX = event.clientX - offsetX;
       startY = event.clientY - offsetY;
       canvas.classList.add("is-dragging");
     });
 
-    nodeElements.forEach((nodeGroup, index) => {
-      nodeGroup.addEventListener("mousedown", function (event) {
-        event.stopPropagation();
-        draggingNodeIndex = index;
-        nodeGroup.classList.add("is-node-dragging");
-        canvas.classList.add("is-node-dragging");
-      });
-    });
-
     window.addEventListener("mousemove", function (event) {
-      if (draggingNodeIndex !== null) {
-        const pointer = clientPointToSvgPoint(event.clientX, event.clientY);
-        const clampedX = Math.max(110, Math.min(1210, pointer.x));
-        const clampedY = Math.max(110, Math.min(1450, pointer.y));
-        workingGraph.nodes[draggingNodeIndex].x = clampedX;
-        workingGraph.nodes[draggingNodeIndex].y = clampedY;
-        updateNodeGeometry(draggingNodeIndex);
-        recomputeEdgeGeometry();
-        return;
-      }
       if (!isDragging) {
         return;
       }
@@ -1957,12 +1225,6 @@
     window.addEventListener("mouseup", function () {
       isDragging = false;
       canvas.classList.remove("is-dragging");
-      if (draggingNodeIndex !== null) {
-        const activeNode = nodeElements[draggingNodeIndex];
-        activeNode?.classList.remove("is-node-dragging");
-        draggingNodeIndex = null;
-        canvas.classList.remove("is-node-dragging");
-      }
     });
 
     canvas.addEventListener("dblclick", function () {
@@ -2079,9 +1341,9 @@
     }
 
     const positionedNodes = [
-      ...layoutColumn(entityNodes, 220, 170, 1320, 180),
-      ...layoutColumn(hubNodes, 620, 250, 1260, 170),
-      ...layoutColumn(valueNodes, 1020, 140, 1380, 190)
+      ...layoutColumn(entityNodes, 220, 120, 920, 126),
+      ...layoutColumn(hubNodes, 560, 220, 820, 118),
+      ...layoutColumn(valueNodes, 980, 90, 950, 108)
     ];
 
     const nodeIndex = new Map(positionedNodes.map((node, index) => [node.label, index]));
@@ -2098,271 +1360,6 @@
       nodes: positionedNodes,
       links: normalizedLinks
     };
-  }
-
-  function getGraphRoleByType(type) {
-    const typeMap = {
-      事件: "触发事件",
-      对象: "巡检对象",
-      位置: "空间位置",
-      状态: "状态描述"
-    };
-    return typeMap[type] || "图谱节点";
-  }
-
-  function getGraphKindByType(type) {
-    const kindMap = {
-      事件: "event",
-      对象: "entity",
-      位置: "location",
-      状态: "state"
-    };
-    return kindMap[type] || "hub";
-  }
-
-  function layoutStructuredGraph(nodes) {
-    const focusDegree = nodes.reduce((maxValue, node) => Math.max(maxValue, node.degree || 0), 0);
-    const grouped = new Map([
-      ["事件", []],
-      ["对象", []],
-      ["位置", []],
-      ["状态", []],
-      ["hub", []]
-    ]);
-
-    nodes.forEach((node) => {
-      const groupKey = grouped.has(node.type) ? node.type : "hub";
-      grouped.get(groupKey).push({
-        ...node,
-        isFocus: (node.degree || 0) === focusDegree && focusDegree > 0
-      });
-    });
-
-    const layoutByType = {
-      事件: { x: 660, y: 170, spread: 200, direction: "row" },
-      对象: { x: 660, y: 560, spread: 240, direction: "row" },
-      位置: { x: 160, y: 860, spread: 260, direction: "column" },
-      状态: { x: 1160, y: 860, spread: 240, direction: "column" },
-      hub: { x: 660, y: 1290, spread: 220, direction: "row" }
-    };
-
-    return Array.from(grouped.entries())
-      .flatMap(([type, items]) => {
-        if (!items.length) {
-          return [];
-        }
-        const config = layoutByType[type] || layoutByType.hub;
-        if (config.direction === "column") {
-          const startY = config.y - ((items.length - 1) * config.spread) / 2;
-          return items.map((node, index) => ({
-            ...node,
-            x: config.x,
-            y: startY + index * config.spread
-          }));
-        }
-
-        const startX = config.x - ((items.length - 1) * config.spread) / 2;
-        return items.map((node, index) => ({
-          ...node,
-          x: startX + index * config.spread,
-          y: config.y
-        }));
-      })
-      .sort((left, right) => left.y - right.y || left.x - right.x);
-  }
-
-  function buildGraphFromStructuredData(rawNodes, rawEdges) {
-    const nodeMap = new Map();
-    const edgeList = Array.isArray(rawEdges) ? rawEdges : [];
-    const degreeMap = new Map();
-
-    edgeList.forEach((edge) => {
-      const source = String(edge?.source || "").trim();
-      const target = String(edge?.target || "").trim();
-      if (!source || !target) {
-        return;
-      }
-      degreeMap.set(source, (degreeMap.get(source) || 0) + 1);
-      degreeMap.set(target, (degreeMap.get(target) || 0) + 1);
-    });
-
-    (Array.isArray(rawNodes) ? rawNodes : []).forEach((node) => {
-      const id = String(node?.id || "").trim();
-      if (!id) {
-        return;
-      }
-      const type = String(node?.type || "节点").trim();
-      nodeMap.set(id, {
-        id,
-        label: id,
-        type,
-        typeLabel: type,
-        role: getGraphRoleByType(type),
-        kind: getGraphKindByType(type),
-        degree: degreeMap.get(id) || 0,
-        summary: node?.properties && Object.keys(node.properties).length ? "包含属性" : ""
-      });
-    });
-
-    edgeList.forEach((edge) => {
-      const source = String(edge?.source || "").trim();
-      const target = String(edge?.target || "").trim();
-      if (source && !nodeMap.has(source)) {
-        const sourceType = String(edge?.source_type || "节点").trim();
-        nodeMap.set(source, {
-          id: source,
-          label: source,
-          type: sourceType,
-          typeLabel: sourceType,
-          role: getGraphRoleByType(sourceType),
-          kind: getGraphKindByType(sourceType),
-          degree: degreeMap.get(source) || 0,
-          summary: ""
-        });
-      }
-      if (target && !nodeMap.has(target)) {
-        const targetType = String(edge?.target_type || "节点").trim();
-        nodeMap.set(target, {
-          id: target,
-          label: target,
-          type: targetType,
-          typeLabel: targetType,
-          role: getGraphRoleByType(targetType),
-          kind: getGraphKindByType(targetType),
-          degree: degreeMap.get(target) || 0,
-          summary: ""
-        });
-      }
-    });
-
-    const laidOutNodes = layoutStructuredGraph(Array.from(nodeMap.values()));
-    const nodeIndex = new Map(laidOutNodes.map((node, index) => [node.id, index]));
-    const links = edgeList
-      .map((edge) => ({
-        from: nodeIndex.get(String(edge?.source || "").trim()),
-        to: nodeIndex.get(String(edge?.target || "").trim()),
-        text: String(edge?.relation || "").trim()
-      }))
-      .filter((edge) => Number.isInteger(edge.from) && Number.isInteger(edge.to) && edge.text);
-
-    return {
-      meta: `${laidOutNodes.length} 个节点 / ${links.length} 条关系`,
-      nodes: laidOutNodes,
-      links
-    };
-  }
-
-  function buildTriplesFromStructuredEdges(rawEdges) {
-    return dedupeTriples(
-      (Array.isArray(rawEdges) ? rawEdges : [])
-        .map((edge) => [
-          String(edge?.source || "").trim(),
-          String(edge?.relation || "").trim(),
-          String(edge?.target || "").trim()
-        ])
-        .filter((triple) => triple.every(Boolean))
-    );
-  }
-
-  function parseMonitorClause(clause) {
-    const text = String(clause || "").trim();
-    if (!text) {
-      return null;
-    }
-
-    const numberAtEndMatch = text.match(/^(.*?)([-+]?\d+(?:\.\d+)?\s*[a-zA-Z%]+)$/);
-    if (numberAtEndMatch) {
-      return {
-        relation: numberAtEndMatch[1].trim(),
-        value: numberAtEndMatch[2].trim()
-      };
-    }
-
-    const segments = text.split(/\s+/).filter(Boolean);
-    if (segments.length >= 2) {
-      return {
-        relation: segments.slice(0, -1).join(" ").trim(),
-        value: segments[segments.length - 1].trim()
-      };
-    }
-
-    return {
-      relation: "状态",
-      value: text
-    };
-  }
-
-  function buildMonitoringTriplesFromTextRecords(point) {
-    const triples = [];
-    const records = Array.isArray(point.monitorTextRecords) ? point.monitorTextRecords : [];
-
-    records.forEach((record, recordIndex) => {
-      const recordTitle = String(record?.title || `${point.name} 监测记录 ${recordIndex + 1}`).trim();
-      const recordTime = String(record?.time || point.latestTime || "").trim();
-      const summary = String(record?.summary || "").trim();
-      if (!summary || summary === "监测记录加载失败") {
-        return;
-      }
-
-      triples.push([point.name, "产生监测记录", recordTitle]);
-      if (recordTime) {
-        triples.push([recordTitle, "记录时间", recordTime]);
-      }
-
-      summary
-        .split(/\r?\n/)
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .forEach((line) => {
-          const lineMatch = line.match(/^(.+?)[:：]\s*(.+)$/);
-          if (!lineMatch) {
-            return;
-          }
-
-          const subject = lineMatch[1].trim();
-          const predicatesText = lineMatch[2].trim();
-          if (!subject || !predicatesText) {
-            return;
-          }
-
-          triples.push([recordTitle, "包含监测项", subject]);
-          triples.push([point.name, "监测到", subject]);
-
-          predicatesText
-            .split(/[，,]/)
-            .map((clause) => clause.trim())
-            .filter(Boolean)
-            .forEach((clause) => {
-              const parsedClause = parseMonitorClause(clause);
-              if (!parsedClause?.relation || !parsedClause?.value) {
-                return;
-              }
-              triples.push([subject, parsedClause.relation, parsedClause.value]);
-            });
-        });
-    });
-
-    return dedupeTriples(triples);
-  }
-
-  async function loadGraphTriples(graph) {
-    if (graph?.nodesPath && graph?.edgesPath) {
-      const cacheKey = `structured-triples:${graph.nodesPath}|${graph.edgesPath}`;
-      if (tripleCache.has(cacheKey)) {
-        return tripleCache.get(cacheKey);
-      }
-
-      try {
-        const edges = await loadJsonFile(graph.edgesPath);
-        const triples = buildTriplesFromStructuredEdges(edges);
-        tripleCache.set(cacheKey, triples);
-        return triples;
-      } catch (error) {
-        return [];
-      }
-    }
-
-    return loadTriplesFromPaths(getGraphSourcePaths(graph));
   }
 
   async function loadTriplesFromPath(sourcePath) {
@@ -2425,21 +1422,6 @@
   }
 
   async function loadInspectionGraph(graph) {
-    if (graph?.nodesPath && graph?.edgesPath) {
-      const cacheKey = `inspection-structured:${graph.nodesPath}|${graph.edgesPath}`;
-      if (graphCache.has(cacheKey)) {
-        return graphCache.get(cacheKey);
-      }
-
-      try {
-        const [nodes, edges] = await Promise.all([loadJsonFile(graph.nodesPath), loadJsonFile(graph.edgesPath)]);
-        const parsedGraph = buildGraphFromStructuredData(nodes, edges);
-        graphCache.set(cacheKey, parsedGraph);
-        return parsedGraph;
-      } catch (error) {
-      }
-    }
-
     const sourcePaths = getGraphSourcePaths(graph);
     if (!sourcePaths.length) {
       return { meta: "0 个节点 / 0 条关系", nodes: [], links: [] };
@@ -2459,29 +1441,20 @@
   async function loadMonitoringFusionGraph(point) {
     const inspectionSourcePaths = getGraphSourcePaths(point.inspectionGraph);
     const monitorSourcePaths = getGraphSourcePaths(point.monitorGraph);
-    const structuredInspectionKey = [point.inspectionGraph?.nodesPath || "", point.inspectionGraph?.edgesPath || ""].join("|");
-    const monitorTextKey = (point.monitorTextRecords || [])
-      .map((record) => `${record.title || ""}:${record.time || ""}:${record.summary || ""}`)
-      .join("|");
-    const cacheKey = `monitor:${point.id}:${structuredInspectionKey}:${inspectionSourcePaths.join("|")}:${monitorSourcePaths.join("|")}:${monitorTextKey}`;
+    const cacheKey = `monitor:${point.id}:${inspectionSourcePaths.join("|")}:${monitorSourcePaths.join("|")}`;
 
     if (graphCache.has(cacheKey)) {
       return graphCache.get(cacheKey);
     }
 
     const [inspectionTriples, generatedMonitoringTriples] = await Promise.all([
-      loadGraphTriples(point.inspectionGraph),
+      loadTriplesFromPaths(inspectionSourcePaths),
       loadTriplesFromPaths(monitorSourcePaths)
     ]);
-    const textMonitoringTriples = buildMonitoringTriplesFromTextRecords(point);
-    const fallbackMonitoringTriples =
-      generatedMonitoringTriples.length || textMonitoringTriples.length
-        ? []
-        : buildMonitoringTriples(point);
+    const fallbackMonitoringTriples = generatedMonitoringTriples.length ? [] : buildMonitoringTriples(point);
     const mergedTriples = dedupeTriples([
       ...inspectionTriples,
       ...generatedMonitoringTriples,
-      ...textMonitoringTriples,
       ...fallbackMonitoringTriples
     ]);
     const fusionGraph = buildGraphFromTriples(mergedTriples);
@@ -2555,13 +1528,6 @@
     });
   }
 
-  function bindGrading() {
-    if (!oneClickGradingBtn) {
-      return;
-    }
-    oneClickGradingBtn.addEventListener("click", runOneClickGrading);
-  }
-
   function bindModal() {
     document.addEventListener("click", function (event) {
       const reviewTrigger = event.target.closest("[data-open-review-form]");
@@ -2573,12 +1539,6 @@
       const inspectionTrigger = event.target.closest("[data-open-inspection-page]");
       if (inspectionTrigger && currentDetailPoint) {
         showInspectionView(currentDetailPoint);
-        return;
-      }
-
-      const gradeTrigger = event.target.closest("[data-open-grade-page]");
-      if (gradeTrigger && currentDetailPoint) {
-        showGradeView(currentDetailPoint);
         return;
       }
 
@@ -2608,36 +1568,62 @@
       showOverviewView();
     });
 
-    gradeBackBtn.addEventListener("click", function () {
-      showOverviewView();
-    });
-
-    reviewSubmitBtn.addEventListener("click", function () {
-      const summary = [
-        `节点等级：${reviewNodeGradeEl.value}`,
-        `人工修正等级：${reviewManualGradeEl.value}`,
-        `人工结论：${collectCheckedValue("review-conclusion")}`,
-        `是否正确：${collectCheckedValue("review-correct")}`,
-        `备注：${reviewRemarkEl.value || "无"}`
-      ];
-      reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
-    });
   }
 
   async function init() {
     await loadAppData();
-    loadGradingResultsFromCache();
-    await loadLatestGradingResults();
     initDashboard();
     setActiveTabs();
     renderList();
+    ensureReviewActionButtons();
     bindListEvents();
     bindTabs();
-    bindGrading();
-    bindRuleReport();
     bindModal();
     await renderMap();
   }
+
+  document.addEventListener("click", async function (event) {
+    const submitButton = event.target.closest("#review-submit-btn");
+    if (submitButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      await submitManualReview();
+      return;
+    }
+
+    const historyButton = event.target.closest("#review-history-btn");
+    if (historyButton) {
+      event.preventDefault();
+      const historySelect = document.getElementById("review-history-select");
+      const item = reviewHistoryItems[Number(historySelect?.value)];
+      if (!item) {
+        reviewResultPanelEl.innerHTML = `<p>\u8bf7\u5148\u9009\u62e9\u4e00\u6761\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u3002</p>`;
+        return;
+      }
+      reviewResultPanelEl.innerHTML = renderHistoryItem(item);
+      return;
+    }
+
+    const commitButton = event.target.closest("#commit-rule-btn");
+    if (commitButton) {
+      event.preventDefault();
+      const statusEl = document.getElementById("commit-rule-status");
+      if (!workflowSession?.thread_id) {
+        if (statusEl) statusEl.textContent = "\u6682\u65e0\u53ef\u5199\u5165\u7684\u590d\u6838\u4f1a\u8bdd\u3002";
+        return;
+      }
+      commitButton.disabled = true;
+      if (statusEl) statusEl.textContent = "\u6b63\u5728\u5199\u5165\u89c4\u5219\u5e93...";
+      try {
+        const data = await postJson("/api/rules/commit", { thread_id: workflowSession.thread_id });
+        if (statusEl) statusEl.textContent = `\u5df2\u5199\u5165\u89c4\u5219\u5e93\uff1a${data.rule_library_path || ""}`;
+      } catch (error) {
+        if (statusEl) statusEl.textContent = `\u5199\u5165\u5931\u8d25\uff1a${error.message}`;
+      } finally {
+        commitButton.disabled = false;
+      }
+    }
+  });
 
   init();
 })();
