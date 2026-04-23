@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from ...grading.engine import Point, grade_point, _load_rules, _monitor_kg_paths_by_point
 from ...state import RiskWorkflowState
+from .engine import Point, _load_rules, _monitor_kg_paths_by_point, grade_point
 
 
 def generate_risk_grade_and_basis(state: RiskWorkflowState) -> dict[str, Any]:

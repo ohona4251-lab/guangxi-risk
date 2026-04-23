@@ -1,8 +1,6 @@
 (function () {
   const appData = {
-    dashboard: {
-      currentTime: "2026-04-23 09:36:09"
-    },
+    dashboard: {},
     points: []
   };
 
@@ -12,7 +10,6 @@
     "III级": "risk-iii",
     "IV级": "risk-iv"
   };
-
   const inspectionTextSourceMap = {
     "BR-BY01": [
       "../data/examples/bridge_br_by01_record1.txt",
@@ -55,6 +52,12 @@
       "../risk_workflow/outputs/node2/front_inspection_records_1_bridge_br_by01_record1_20260423_141533/iter0/canon_kg.txt",
       "../risk_workflow/outputs/node2/front_inspection_records_2_bridge_br_by01_record2_20260423_141852/iter0/canon_kg.txt"
     ]
+  };
+  const structuredInspectionGraphSourceMap = {
+    "BR-BY01": {
+      nodesPath: "../risk_workflow/outputs/node2/test/initial_kg.nodes.json",
+      edgesPath: "../risk_workflow/outputs/node2/test/initial_kg.edges.json"
+    }
   };
   const generatedMonitorGraphSourceMap = {
     "BR-BY01": [
@@ -116,6 +119,7 @@
     低风险: "low"
   };
   const gradingResultPath = "../risk_workflow/outputs/node5/latest.json";
+  const gradingCacheKey = "gx-risk-node5-latest-grading";
 
   const pointListEl = document.getElementById("point-list");
   const modalEl = document.getElementById("detail-modal");
@@ -125,6 +129,8 @@
   const typeBreakdownEl = document.getElementById("stat-type-breakdown");
   const alertBreakdownEl = document.getElementById("stat-alert-breakdown");
   const currentTimeEl = document.getElementById("current-time");
+  const gradingCountdownEl = document.getElementById("grading-countdown");
+  const timeRangeSelectEl = document.getElementById("time-range-select");
   const tabButtons = Array.from(document.querySelectorAll(".mini-tab"));
   const detailOverviewEl = document.getElementById("detail-overview");
   const detailReviewPageEl = document.getElementById("detail-review-page");
@@ -156,6 +162,7 @@
   let activeMarker = null;
   let currentType = "桥梁";
   let currentDetailPoint = null;
+  let dashboardTimer = null;
   const markerById = new Map();
   const graphCache = new Map();
   const tripleCache = new Map();
@@ -258,6 +265,16 @@
       inspectionRecords: rawPoint.inspection_records || rawPoint.inspectionRecords || [],
       inspectionTextSources: rawPoint.inspection_text_sources || inspectionTextSourceMap[rawPoint.id] || [],
       inspectionGraph: {
+        nodesPath:
+          rawPoint.inspection_graph_nodes_path ||
+          rawPoint.inspectionGraph?.nodesPath ||
+          structuredInspectionGraphSourceMap[rawPoint.id]?.nodesPath ||
+          "",
+        edgesPath:
+          rawPoint.inspection_graph_edges_path ||
+          rawPoint.inspectionGraph?.edgesPath ||
+          structuredInspectionGraphSourceMap[rawPoint.id]?.edgesPath ||
+          "",
         sourcePath:
           rawPoint.inspection_graph_source_path ||
           rawPoint.inspectionGraph?.sourcePath ||
@@ -673,6 +690,51 @@
     }
   }
 
+  function saveGradingResultsToCache(payload) {
+    if (!payload || !Array.isArray(payload.results) || !payload.results.length) {
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(gradingCacheKey);
+      const existing = raw ? JSON.parse(raw) : null;
+      const existingResults = Array.isArray(existing?.results) ? existing.results : [];
+      const mergedMap = new Map(existingResults.map((item) => [item.point_id, item]));
+      payload.results.forEach((item) => {
+        if (item?.point_id) {
+          mergedMap.set(item.point_id, item);
+        }
+      });
+      const mergedPayload = {
+        generated_at: payload.generated_at || existing?.generated_at || null,
+        total: mergedMap.size,
+        results: Array.from(mergedMap.values())
+      };
+      window.localStorage.setItem(gradingCacheKey, JSON.stringify(mergedPayload));
+    } catch (error) {
+      // Ignore local storage write failures.
+    }
+  }
+
+  function loadGradingResultsFromCache() {
+    try {
+      const raw = window.localStorage.getItem(gradingCacheKey);
+      if (!raw) {
+        return false;
+      }
+      return applyGradingResults(JSON.parse(raw));
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function hasCompletedGrading(point) {
+    if (!point) {
+      return false;
+    }
+    const basis = point.gradeResult?.basis;
+    return point.latestEvent === "规则分级" && (!!point.gradeResult?.explanation || Array.isArray(basis?.matched_evidence));
+  }
+
   function applyGradingResults(payload) {
     const results = Array.isArray(payload?.results) ? payload.results : [];
     if (!results.length) {
@@ -695,10 +757,8 @@
         inspectionSummary: result.summary || point.inspectionSummary,
         gradeResult: {
           level: riskLevel,
-          desc: result.summary || `${result.hazard_type || "当前风险点"}判定为${riskLevel}风险。`,
+          desc: result.summary || `当前风险点判定为${riskLevel}风险。`,
           explanation: result.explanation || "",
-          hazardType: result.hazard_type || "",
-          score: result.score,
           basis: result.grading_basis || {}
         },
         review: {
@@ -717,6 +777,7 @@
         document.getElementById("detail-review").innerHTML = renderReview(currentDetailPoint);
       }
     }
+    saveGradingResultsToCache(payload);
     return true;
   }
 
@@ -763,30 +824,59 @@
     }
 
     const originalText = oneClickGradingBtn.textContent;
+    const pointIds = appData.points.map((point) => point.id);
     oneClickGradingBtn.disabled = true;
-    oneClickGradingBtn.textContent = "分级中...";
+    oneClickGradingBtn.textContent = "分级中 0/" + pointIds.length;
+    try {
+      for (let index = 0; index < pointIds.length; index += 1) {
+        const pointId = pointIds[index];
+        oneClickGradingBtn.textContent = `分级中 ${index + 1}/${pointIds.length}`;
+        const payload = await runGradingBatch([pointId]);
+        applyGradingResults(payload);
+        refreshAfterGrading();
+      }
+      oneClickGradingBtn.textContent = "分级完成";
+    } catch (error) {
+      window.alert(
+        `一键分级没有执行成功：${error.message || "未知错误"}\n请确认通过 python -m risk_workflow.rules.node5.server 启动页面，并且 .env 中的 OPENAI_API_KEY / OPENAI_BASE_URL 可用。`
+      );
+    } finally {
+      window.setTimeout(() => {
+        oneClickGradingBtn.disabled = false;
+        oneClickGradingBtn.textContent = originalText;
+      }, 800);
+    }
+  }
+
+  async function runGradingBatch(pointIds) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 360000);
     try {
       const response = await fetch("/api/grading/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ point_ids: appData.points.map((point) => point.id) })
+        cache: "no-store",
+        signal: controller.signal,
+        body: JSON.stringify({ point_ids: pointIds })
       });
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        let message = `HTTP ${response.status}`;
+        try {
+          const errorPayload = await response.json();
+          message = errorPayload.error || errorPayload.message || message;
+        } catch (parseError) {
+          // Keep the HTTP status if the server did not return JSON.
+        }
+        throw new Error(`${pointIds.join(", ")}：${message}`);
       }
-      const payload = await response.json();
-      applyGradingResults(payload);
-      refreshAfterGrading();
+      return await response.json();
     } catch (error) {
-      const loaded = await loadLatestGradingResults();
-      if (loaded) {
-        refreshAfterGrading();
-      } else {
-        window.alert("未连接分级服务。请运行 python -m risk_workflow.grading 或 python -m risk_workflow.grading.server 后重试。");
+      if (error.name === "AbortError") {
+        throw new Error(`${pointIds.join(", ")}：分级请求超过 360 秒未返回`);
       }
+      throw error;
     } finally {
-      oneClickGradingBtn.disabled = false;
-      oneClickGradingBtn.textContent = originalText;
+      window.clearTimeout(timeoutId);
     }
   }
 
@@ -808,11 +898,73 @@
     const slopeCount = getPointsByType("边坡").length;
     const riskCount = getRiskCounts(appData.points);
 
-    currentTimeEl.textContent = appData.dashboard.currentTime;
+    initTimeRangeSelect();
+    startDashboardClock();
     monitorCountEl.textContent = appData.points.length;
     typeBreakdownEl.textContent = `${bridgeCount} / ${slopeCount}`;
     alertBreakdownEl.textContent = `${riskCount["I级"]} 高 · ${riskCount["II级"]} 中 · ${riskCount["III级"] + riskCount["IV级"]} 低`;
     listSummaryEl.textContent = `桥梁：${bridgeCount} 处 | 边坡：${slopeCount} 处`;
+  }
+
+  function padNumber(value) {
+    return String(value).padStart(2, "0");
+  }
+
+  function formatDate(value) {
+    return `${value.getFullYear()}-${padNumber(value.getMonth() + 1)}-${padNumber(value.getDate())}`;
+  }
+
+  function formatDateTime(value) {
+    return `${formatDate(value)} ${padNumber(value.getHours())}:${padNumber(value.getMinutes())}:${padNumber(value.getSeconds())}`;
+  }
+
+  function formatDuration(milliseconds) {
+    const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000));
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${padNumber(hours)}:${padNumber(minutes)}:${padNumber(seconds)}`;
+  }
+
+  function getNextGradingTime(now) {
+    const next = new Date(now);
+    next.setHours(8, 0, 0, 0);
+    if (next <= now) {
+      next.setDate(next.getDate() + 1);
+    }
+    return next;
+  }
+
+  function updateDashboardClock() {
+    const now = new Date();
+    const nextGradingTime = getNextGradingTime(now);
+    if (currentTimeEl) {
+      currentTimeEl.textContent = formatDateTime(now);
+    }
+    if (gradingCountdownEl) {
+      gradingCountdownEl.textContent = formatDuration(nextGradingTime - now);
+    }
+  }
+
+  function startDashboardClock() {
+    updateDashboardClock();
+    if (dashboardTimer) {
+      window.clearInterval(dashboardTimer);
+    }
+    dashboardTimer = window.setInterval(updateDashboardClock, 1000);
+  }
+
+  function collectAvailableDates() {
+    return [formatDate(new Date())];
+  }
+
+  function initTimeRangeSelect() {
+    if (!timeRangeSelectEl) {
+      return;
+    }
+
+    const dates = collectAvailableDates();
+    timeRangeSelectEl.innerHTML = dates.map((label) => `<option value="${label}"></option>`).join("");
   }
 
   function setActiveTabs() {
@@ -859,6 +1011,31 @@
     `;
   }
 
+  function getMarkerLngLat(point) {
+    const lngLat = parseLngLat(point.lnglat);
+    if (!lngLat) {
+      return null;
+    }
+    const sameTypePoints = appData.points.filter((item) => item.type === point.type);
+    const closePoints = sameTypePoints.filter((item) => {
+      const other = parseLngLat(item.lnglat);
+      if (!other) {
+        return false;
+      }
+      return Math.abs(other.lng - lngLat.lng) < 0.04 && Math.abs(other.lat - lngLat.lat) < 0.04;
+    });
+    if (closePoints.length <= 1) {
+      return lngLat;
+    }
+    const index = closePoints.findIndex((item) => item.id === point.id);
+    const angle = (Math.PI * 2 * Math.max(index, 0)) / closePoints.length;
+    const radius = 0.055;
+    return {
+      lng: lngLat.lng + Math.cos(angle) * radius,
+      lat: lngLat.lat + Math.sin(angle) * radius
+    };
+  }
+
   function buildPopupHtml(point) {
     return `
       <div class="map-popup">
@@ -876,6 +1053,93 @@
         <p>${message || "当前无法加载广西地图数据，但仍可使用左侧列表查看详情。"}</p>
       </div>
     `;
+  }
+
+  function renderCoordinateMapFallback(message) {
+    const points = appData.points
+      .map((point) => ({ point, lngLat: parseLngLat(point.lnglat) }))
+      .filter((item) => item.lngLat);
+    const lngValues = points.map((item) => item.lngLat.lng);
+    const latValues = points.map((item) => item.lngLat.lat);
+    const minLng = Math.min(104.4, ...lngValues);
+    const maxLng = Math.max(112.1, ...lngValues);
+    const minLat = Math.min(20.8, ...latValues);
+    const maxLat = Math.max(26.4, ...latValues);
+    const lngSpan = maxLng - minLng || 1;
+    const latSpan = maxLat - minLat || 1;
+
+    const markers = points
+      .map(({ point, lngLat }) => {
+        const x = ((lngLat.lng - minLng) / lngSpan) * 88 + 6;
+        const y = 94 - ((lngLat.lat - minLat) / latSpan) * 88;
+        return `
+          <button
+            class="fallback-map-marker ${point.riskClass}"
+            type="button"
+            style="left:${x}%;top:${y}%"
+            data-point-id="${point.id}"
+            title="${point.name} ${point.riskLevel}"
+          ></button>
+        `;
+      })
+      .join("");
+
+    mapRootEl.innerHTML = `
+      <div class="fallback-map">
+        <div class="fallback-map-shape" aria-hidden="true">
+          <svg viewBox="0 0 640 420" preserveAspectRatio="none">
+            <path d="M96 104 L210 42 L382 58 L532 124 L578 238 L496 352 L318 386 L150 318 L58 208 Z"></path>
+            <path d="M140 138 L262 104 L438 126 M116 218 L274 202 L520 226 M178 302 L354 286 L472 316"></path>
+          </svg>
+        </div>
+        ${markers}
+        <div class="fallback-map-note">${message || "地图边界数据未加载，已显示检测点坐标分布。"}</div>
+      </div>
+    `;
+
+    mapRootEl.querySelectorAll("[data-point-id]").forEach((marker) => {
+      marker.addEventListener("click", function () {
+        const point = appData.points.find((item) => item.id === marker.dataset.pointId);
+        if (!point) {
+          return;
+        }
+        currentType = point.type;
+        setActiveTabs();
+        renderList();
+        setActivePoint(point.id);
+        openDetail(point);
+      });
+    });
+  }
+
+  async function loadGuangxiGeoJson() {
+    const candidates = ["./data/guangxi.json", "/front/data/guangxi.json", "data/guangxi.json"];
+    let lastError = null;
+
+    for (const path of candidates) {
+      try {
+        const response = await fetch(path);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error("Guangxi GeoJSON unavailable");
+  }
+
+  function buildProvinceFeature(cityFeatures) {
+    if (!cityFeatures.length) {
+      return null;
+    }
+
+    return {
+      type: "FeatureCollection",
+      features: cityFeatures
+    };
   }
 
   function buildRegionLabel(feature) {
@@ -904,7 +1168,7 @@
 
       if (point.type === type) {
         marker.addTo(mapInstance);
-        const lngLat = parseLngLat(point.lnglat);
+        const lngLat = getMarkerLngLat(point);
         if (lngLat) {
           bounds.push([lngLat.lat, lngLat.lng]);
         }
@@ -948,7 +1212,7 @@
     marker.getElement()?.classList.add("is-active");
     marker.openPopup();
 
-    const lngLat = parseLngLat(point.lnglat);
+    const lngLat = getMarkerLngLat(point);
     if (lngLat) {
       mapInstance.flyTo([lngLat.lat, lngLat.lng], Math.max(mapInstance.getZoom(), 9), {
         duration: 0.8
@@ -958,7 +1222,7 @@
 
   async function renderMap() {
     if (!window.L || !mapRootEl) {
-      renderMapFallback("地图组件未加载。");
+      renderCoordinateMapFallback("地图组件未加载，已显示检测点坐标分布。");
       return;
     }
 
@@ -970,14 +1234,11 @@
     mapInstance.setView([22.9, 108.3], 7);
 
     try {
-      const response = await fetch("./data/guangxi.json");
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const geoJson = await response.json();
-      const provinceFeature = geoJson.features.find((feature) => feature.properties?.level === 1);
-      const cityFeatures = geoJson.features.filter((feature) => feature.properties?.level === 2);
+      const geoJson = await loadGuangxiGeoJson();
+      const features = Array.isArray(geoJson.features) ? geoJson.features : [];
+      const provinceFeature =
+        features.find((feature) => feature.properties?.level === 1) || buildProvinceFeature(features);
+      const cityFeatures = features.filter((feature) => feature.properties?.level === 2);
 
       window.L.geoJSON(cityFeatures, {
         style: function () {
@@ -1016,12 +1277,16 @@
         }
       }
     } catch (error) {
-      renderMapFallback("广西地图边界数据加载失败。");
+      if (mapInstance) {
+        mapInstance.remove();
+        mapInstance = null;
+      }
+      renderCoordinateMapFallback("广西地图边界数据加载失败，已显示检测点坐标分布。");
       return;
     }
 
     appData.points.forEach((point) => {
-      const lngLat = parseLngLat(point.lnglat);
+      const lngLat = getMarkerLngLat(point);
       if (!lngLat) {
         return;
       }
@@ -1134,13 +1399,6 @@
   }
 
   function renderGrade(point) {
-    const hazardText = point.gradeResult.hazardType
-      ? `<span>${point.gradeResult.hazardType}</span>`
-      : "";
-    const scoreText =
-      point.gradeResult.score !== undefined && point.gradeResult.score !== null
-        ? `<span>综合评分 ${point.gradeResult.score}</span>`
-        : "";
     return `
       <div class="card-head">
         <div>
@@ -1152,10 +1410,6 @@
         <div class="grade-badge ${point.riskClass}">${point.gradeResult.level}</div>
         <div class="grade-brief">
           <strong>${point.gradeResult.desc}</strong>
-          <div class="grade-brief-tags">
-            ${hazardText}
-            ${scoreText}
-          </div>
         </div>
       </div>
     `;
@@ -1234,37 +1488,85 @@
       .join("");
   }
 
-  function renderRuleCards(rules) {
-    if (!rules?.length) {
-      return '<div class="grade-empty">暂无命中规则。</div>';
+  function formatEvidenceSentence(value) {
+    const text = String(value || "").trim();
+    if (!text) {
+      return "暂无";
     }
-    return rules
-      .map(
-        (rule) => `
-          <article class="rule-evidence-card">
-            <div>
-              <span>隐患类型</span>
-              <strong>${escapeHtml(rule.hazard_type || "未识别")}</strong>
-            </div>
-            <section>
-              <h5>灾害判断依据</h5>
-              <p>${escapeHtml(rule.judgement_basis || "暂无")}</p>
-            </section>
-            <section>
-              <h5>风险分级规则</h5>
-              <p>${escapeHtml(rule.grading_rule || "暂无")}</p>
-            </section>
-          </article>
-        `
-      )
+    const arrowMatch = text.match(/^(.+?)\s*--(.+?)-->\s*(.+)$/);
+    if (arrowMatch) {
+      return `${arrowMatch[1].trim()}的${arrowMatch[2].trim()}为${arrowMatch[3].trim()}。`;
+    }
+    const tripleMatch = text.match(/^\[?['"]?([^,'"\]]+)['"]?\s*,\s*['"]?([^,'"\]]+)['"]?\s*,\s*['"]?([^,'"\]]+)['"]?\]?$/);
+    if (tripleMatch) {
+      return `${tripleMatch[1].trim()}的${tripleMatch[2].trim()}为${tripleMatch[3].trim()}。`;
+    }
+    return text;
+  }
+
+  function renderEvidenceRuleMatches(items) {
+    if (!items?.length) {
+      return '<div class="grade-empty">暂无命中证据。</div>';
+    }
+    return items
+      .map((item) => {
+        if (typeof item === "string") {
+          return `
+            <li class="evidence-match-item">
+              <p>${escapeHtml(item)}</p>
+            </li>
+          `;
+        }
+        const evidenceText = formatEvidenceSentence(item.evidence_sentence || item.kg_evidence || item.evidence);
+        const disasterType = item.disaster_type || item.hazard_type || "";
+        const ruleText = item.rule_text || "";
+        const reasoning = item.reasoning || "";
+        return `
+          <li class="evidence-match-item">
+            <p>${escapeHtml(evidenceText)}</p>
+            ${disasterType ? `<span>对应灾害类型：${escapeHtml(disasterType)}</span>` : ""}
+            ${ruleText ? `<span>对应规则：${escapeHtml(ruleText)}</span>` : ""}
+            ${reasoning ? `<small>${escapeHtml(reasoning)}</small>` : ""}
+          </li>
+        `;
+      })
       .join("");
+  }
+
+  function renderEvidenceRuleTexts(items) {
+    const rows = (items || [])
+      .filter((item) => item && typeof item === "object" && item.rule_text)
+      .map((item) => ({
+        evidence: formatEvidenceSentence(item.evidence_sentence || item.kg_evidence || item.evidence),
+        disasterType: item.disaster_type || item.hazard_type || "",
+        ruleText: item.rule_text
+      }));
+
+    if (!rows.length) {
+      return '<div class="grade-empty">暂无证据对应的规则文本。</div>';
+    }
+
+    return `
+      <ul class="evidence-rule-text-list">
+        ${rows
+          .map(
+            (row) => `
+              <li>
+                <p>${escapeHtml(row.ruleText)}</p>
+                <span>对应证据：${escapeHtml(row.evidence)}</span>
+                ${row.disasterType ? `<small>对应灾害类型：${escapeHtml(row.disasterType)}</small>` : ""}
+              </li>
+            `
+          )
+          .join("")}
+      </ul>
+    `;
   }
 
   function showGradeView(point) {
     currentDetailPoint = point;
     const basis = point.gradeResult.basis || {};
     const evidence = basis.matched_evidence || [];
-    const rules = basis.matched_rules || [];
 
     detailOverviewEl.classList.add("hidden");
     detailReviewPageEl.classList.add("hidden");
@@ -1279,29 +1581,24 @@
           <div>
             <p>分级结论</p>
             <h4>${escapeHtml(point.gradeResult.desc)}</h4>
-            <span>${escapeHtml(point.gradeResult.hazardType || "未识别隐患类型")}</span>
           </div>
         </div>
-        <div class="grade-score">
-          <span>综合评分</span>
-          <strong>${point.gradeResult.score ?? "-"}</strong>
-        </div>
       </section>
 
       <section class="grade-section">
         <div class="grade-section-head">
-          <h4>命中证据</h4>
+          <h4>命中证据与规则对应</h4>
           <span>${evidence.length} 条</span>
         </div>
-        <ul class="evidence-list">${renderListItems(evidence, "暂无命中证据。")}</ul>
+        <ul class="evidence-match-list">${renderEvidenceRuleMatches(evidence)}</ul>
       </section>
 
       <section class="grade-section">
         <div class="grade-section-head">
-          <h4>规则依据</h4>
-          <span>${rules.length} 条</span>
+          <h4>证据对应的规则文本</h4>
+          <span>${evidence.filter((item) => item?.rule_text).length} 条</span>
         </div>
-        <div class="rule-evidence-list">${renderRuleCards(rules)}</div>
+        ${renderEvidenceRuleTexts(evidence)}
       </section>
 
       <section class="grade-section">
@@ -1326,25 +1623,70 @@
     }
 
     function getNodeWidth(node) {
-      return Math.max(148, Math.min(220, 84 + node.label.length * 16));
+      const titleLength = String(node.label || "").length;
+      const typeLength = String(node.typeLabel || "").length;
+      return Math.max(176, Math.min(280, 92 + Math.max(titleLength, typeLength) * 16));
     }
 
+    function getNodeHeight(node) {
+      return node.summary ? 104 : 92;
+    }
+
+    function getEdgePath(from, to, bend) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+      const normalX = (-dy / distance) * bend;
+      const normalY = (dx / distance) * bend;
+      const cx = (from.x + to.x) / 2 + normalX;
+      const cy = (from.y + to.y) / 2 + normalY;
+      return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
+    }
+
+    function getQuadraticPoint(from, to, bend, t) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+      const normalX = (-dy / distance) * bend;
+      const normalY = (dx / distance) * bend;
+      const cx = (from.x + to.x) / 2 + normalX;
+      const cy = (from.y + to.y) / 2 + normalY;
+      const oneMinusT = 1 - t;
+      return {
+        x: oneMinusT * oneMinusT * from.x + 2 * oneMinusT * t * cx + t * t * to.x,
+        y: oneMinusT * oneMinusT * from.y + 2 * oneMinusT * t * cy + t * t * to.y
+      };
+    }
+
+    const outgoingCount = new Map();
+    const incomingCount = new Map();
+    const markerId = `${containerId}-graph-arrow`;
     const lines = graph.links
       .map((link, index) => {
         const from = graph.nodes[link.from];
         const to = graph.nodes[link.to];
-        const tx = (from.x + to.x) / 2;
-        const ty = (from.y + to.y) / 2;
-        const dx = to.x - from.x;
-        const dy = to.y - from.y;
-        const len = Math.sqrt(dx * dx + dy * dy) || 1;
-        const offsetX = (dy / len) * 16;
-        const offsetY = (-dx / len) * 16;
+        if (!from || !to) {
+          return "";
+        }
+        const outgoingIndex = outgoingCount.get(link.from) || 0;
+        const incomingIndex = incomingCount.get(link.to) || 0;
+        outgoingCount.set(link.from, outgoingIndex + 1);
+        incomingCount.set(link.to, incomingIndex + 1);
+
+        const fanOffset = (outgoingIndex - incomingIndex) * 14;
+        const bendBase = Math.min(88, 30 + Math.abs(to.x - from.x) * 0.045 + Math.abs(to.y - from.y) * 0.02);
+        const bendDirection = index % 2 === 0 ? 1 : -1;
+        const bend = bendDirection * bendBase + fanOffset;
+        const labelT = 0.38 + Math.min(0.24, outgoingIndex * 0.08);
+        const midPoint = getQuadraticPoint(from, to, bend, labelT);
+        const labelText = escapeHtml(link.text);
+        const labelWidth = Math.max(86, Math.min(220, 38 + String(link.text || "").length * 20));
+        const edgePath = getEdgePath(from, to, bend);
         return `
-          <g class="graph-edge-group" style="animation-delay:${index * 120}ms">
-            <line class="graph-edge" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"></line>
-            <rect class="graph-edge-label-bg" x="${tx - 50 + offsetX}" y="${ty - 16 + offsetY}" rx="12" ry="12" width="100" height="30"></rect>
-            <text class="graph-edge-label" x="${tx + offsetX}" y="${ty + 4 + offsetY}">${link.text}</text>
+          <g class="graph-edge-group" data-edge-index="${index}" style="animation-delay:${index * 120}ms">
+            <path class="graph-edge" d="${edgePath}" marker-end="url(#${markerId})"></path>
+            <rect class="graph-edge-label-bg" x="${midPoint.x - labelWidth / 2}" y="${midPoint.y - 18}" rx="16" ry="16" width="${labelWidth}" height="36"></rect>
+            <text class="graph-edge-label" x="${midPoint.x}" y="${midPoint.y + 5}">${labelText}</text>
           </g>
         `;
       })
@@ -1353,16 +1695,20 @@
     const nodes = graph.nodes
       .map((node, index) => {
         const width = getNodeWidth(node);
+        const height = getNodeHeight(node);
         const x = node.x - width / 2;
-        const y = node.y - 42;
+        const y = node.y - height / 2;
+        const summaryRow = node.summary
+          ? `<text class="graph-node-summary" x="${x + 20}" y="${y + height - 16}">${escapeHtml(node.summary)}</text>`
+          : "";
         return `
-          <g class="graph-node-card ${node.kind}" style="animation-delay:${index * 90}ms">
-            <circle class="graph-node-halo" cx="${node.x}" cy="${node.y}" r="52"></circle>
-            <rect class="graph-node-box" x="${x}" y="${y}" rx="22" ry="22" width="${width}" height="84"></rect>
-            <circle class="graph-node-dot" cx="${x + 22}" cy="${y + 24}" r="7"></circle>
-            <text class="graph-node-title" x="${x + 38}" y="${y + 30}">${node.label}</text>
-            <text class="graph-node-meta" x="${x + 18}" y="${y + 58}">${node.role}</text>
-            <text class="graph-node-meta sub" x="${x + 18}" y="${y + 76}">关联度 ${node.degree}</text>
+          <g class="graph-node-card ${node.kind} ${node.isFocus ? "is-focus" : ""}" data-node-index="${index}" style="animation-delay:${index * 90}ms">
+            <circle class="graph-node-halo" cx="${node.x}" cy="${node.y}" r="${node.isFocus ? 70 : 58}"></circle>
+            <rect class="graph-node-box" x="${x}" y="${y}" rx="26" ry="26" width="${width}" height="${height}"></rect>
+            <text class="graph-node-badge" x="${x + 20}" y="${y + 24}">${escapeHtml(node.typeLabel || "节点")}</text>
+            <text class="graph-node-title" x="${x + 20}" y="${y + 52}">${escapeHtml(node.label)}</text>
+            <text class="graph-node-meta" x="${x + 20}" y="${y + 78}">${escapeHtml(node.role || "图谱节点")} · ${node.degree} 条关联</text>
+            ${summaryRow}
           </g>
         `;
       })
@@ -1371,9 +1717,9 @@
     container.innerHTML = `
       <div class="graph-interact-hint">滚轮缩放，拖拽平移，双击重置</div>
       <div class="graph-canvas" data-graph-canvas="true">
-        <svg viewBox="0 0 1280 1040" preserveAspectRatio="xMidYMid meet">
+        <svg viewBox="0 0 1320 1560" preserveAspectRatio="xMidYMid meet">
           <defs>
-            <marker id="graph-arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+            <marker id="${markerId}" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
               <path d="M0,0 L12,6 L0,12 z" class="graph-arrow-head"></path>
             </marker>
           </defs>
@@ -1383,10 +1729,10 @@
       </div>
     `;
 
-    bindGraphInteractions(container);
+    bindGraphInteractions(container, graph);
   }
 
-  function bindGraphInteractions(container) {
+  function bindGraphInteractions(container, graph) {
     const canvas = container.querySelector("[data-graph-canvas='true']");
     const svg = canvas?.querySelector("svg");
     if (!canvas || !svg) {
@@ -1399,6 +1745,154 @@
     let isDragging = false;
     let startX = 0;
     let startY = 0;
+    let draggingNodeIndex = null;
+
+    const workingGraph = {
+      ...graph,
+      nodes: graph.nodes.map((node) => ({ ...node })),
+      links: graph.links.map((link) => ({ ...link }))
+    };
+    const nodeElements = Array.from(container.querySelectorAll("[data-node-index]"));
+    const edgeElements = Array.from(container.querySelectorAll("[data-edge-index]"));
+
+    function getNodeWidth(node) {
+      const titleLength = String(node.label || "").length;
+      const typeLength = String(node.typeLabel || "").length;
+      return Math.max(176, Math.min(280, 92 + Math.max(titleLength, typeLength) * 16));
+    }
+
+    function getNodeHeight(node) {
+      return node.summary ? 104 : 92;
+    }
+
+    function getEdgePath(from, to, bend) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+      const normalX = (-dy / distance) * bend;
+      const normalY = (dx / distance) * bend;
+      const cx = (from.x + to.x) / 2 + normalX;
+      const cy = (from.y + to.y) / 2 + normalY;
+      return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
+    }
+
+    function getQuadraticPoint(from, to, bend, t) {
+      const dx = to.x - from.x;
+      const dy = to.y - from.y;
+      const distance = Math.sqrt(dx * dx + dy * dy) || 1;
+      const normalX = (-dy / distance) * bend;
+      const normalY = (dx / distance) * bend;
+      const cx = (from.x + to.x) / 2 + normalX;
+      const cy = (from.y + to.y) / 2 + normalY;
+      const oneMinusT = 1 - t;
+      return {
+        x: oneMinusT * oneMinusT * from.x + 2 * oneMinusT * t * cx + t * t * to.x,
+        y: oneMinusT * oneMinusT * from.y + 2 * oneMinusT * t * cy + t * t * to.y
+      };
+    }
+
+    function recomputeEdgeGeometry() {
+      const outgoingCount = new Map();
+      const incomingCount = new Map();
+
+      workingGraph.links.forEach((link, index) => {
+        const edgeGroup = edgeElements[index];
+        const from = workingGraph.nodes[link.from];
+        const to = workingGraph.nodes[link.to];
+        if (!edgeGroup || !from || !to) {
+          return;
+        }
+
+        const outgoingIndex = outgoingCount.get(link.from) || 0;
+        const incomingIndex = incomingCount.get(link.to) || 0;
+        outgoingCount.set(link.from, outgoingIndex + 1);
+        incomingCount.set(link.to, incomingIndex + 1);
+
+        const fanOffset = (outgoingIndex - incomingIndex) * 14;
+        const bendBase = Math.min(88, 30 + Math.abs(to.x - from.x) * 0.045 + Math.abs(to.y - from.y) * 0.02);
+        const bendDirection = index % 2 === 0 ? 1 : -1;
+        const bend = bendDirection * bendBase + fanOffset;
+        const labelT = 0.38 + Math.min(0.24, outgoingIndex * 0.08);
+        const midPoint = getQuadraticPoint(from, to, bend, labelT);
+        const labelWidth = Math.max(86, Math.min(220, 38 + String(link.text || "").length * 20));
+        const edgePath = getEdgePath(from, to, bend);
+
+        const pathEl = edgeGroup.querySelector(".graph-edge");
+        const rectEl = edgeGroup.querySelector(".graph-edge-label-bg");
+        const textEl = edgeGroup.querySelector(".graph-edge-label");
+        if (pathEl) {
+          pathEl.setAttribute("d", edgePath);
+        }
+        if (rectEl) {
+          rectEl.setAttribute("x", String(midPoint.x - labelWidth / 2));
+          rectEl.setAttribute("y", String(midPoint.y - 18));
+          rectEl.setAttribute("width", String(labelWidth));
+          rectEl.setAttribute("height", "36");
+        }
+        if (textEl) {
+          textEl.setAttribute("x", String(midPoint.x));
+          textEl.setAttribute("y", String(midPoint.y + 5));
+        }
+      });
+    }
+
+    function updateNodeGeometry(nodeIndex) {
+      const node = workingGraph.nodes[nodeIndex];
+      const nodeGroup = nodeElements[nodeIndex];
+      if (!node || !nodeGroup) {
+        return;
+      }
+
+      const width = getNodeWidth(node);
+      const height = getNodeHeight(node);
+      const x = node.x - width / 2;
+      const y = node.y - height / 2;
+
+      const haloEl = nodeGroup.querySelector(".graph-node-halo");
+      const boxEl = nodeGroup.querySelector(".graph-node-box");
+      const badgeEl = nodeGroup.querySelector(".graph-node-badge");
+      const titleEl = nodeGroup.querySelector(".graph-node-title");
+      const metaEl = nodeGroup.querySelector(".graph-node-meta");
+      const summaryEl = nodeGroup.querySelector(".graph-node-summary");
+
+      if (haloEl) {
+        haloEl.setAttribute("cx", String(node.x));
+        haloEl.setAttribute("cy", String(node.y));
+      }
+      if (boxEl) {
+        boxEl.setAttribute("x", String(x));
+        boxEl.setAttribute("y", String(y));
+        boxEl.setAttribute("width", String(width));
+        boxEl.setAttribute("height", String(height));
+      }
+      if (badgeEl) {
+        badgeEl.setAttribute("x", String(x + 20));
+        badgeEl.setAttribute("y", String(y + 24));
+      }
+      if (titleEl) {
+        titleEl.setAttribute("x", String(x + 20));
+        titleEl.setAttribute("y", String(y + 52));
+      }
+      if (metaEl) {
+        metaEl.setAttribute("x", String(x + 20));
+        metaEl.setAttribute("y", String(y + 78));
+      }
+      if (summaryEl) {
+        summaryEl.setAttribute("x", String(x + 20));
+        summaryEl.setAttribute("y", String(y + height - 16));
+      }
+    }
+
+    function clientPointToSvgPoint(clientX, clientY) {
+      const point = svg.createSVGPoint();
+      point.x = clientX;
+      point.y = clientY;
+      const screenCTM = svg.getScreenCTM();
+      if (!screenCTM) {
+        return { x: 0, y: 0 };
+      }
+      return point.matrixTransform(screenCTM.inverse());
+    }
 
     function applyTransform() {
       svg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
@@ -1423,13 +1917,35 @@
     );
 
     canvas.addEventListener("mousedown", function (event) {
+      if (event.target.closest("[data-node-index]")) {
+        return;
+      }
       isDragging = true;
       startX = event.clientX - offsetX;
       startY = event.clientY - offsetY;
       canvas.classList.add("is-dragging");
     });
 
+    nodeElements.forEach((nodeGroup, index) => {
+      nodeGroup.addEventListener("mousedown", function (event) {
+        event.stopPropagation();
+        draggingNodeIndex = index;
+        nodeGroup.classList.add("is-node-dragging");
+        canvas.classList.add("is-node-dragging");
+      });
+    });
+
     window.addEventListener("mousemove", function (event) {
+      if (draggingNodeIndex !== null) {
+        const pointer = clientPointToSvgPoint(event.clientX, event.clientY);
+        const clampedX = Math.max(110, Math.min(1210, pointer.x));
+        const clampedY = Math.max(110, Math.min(1450, pointer.y));
+        workingGraph.nodes[draggingNodeIndex].x = clampedX;
+        workingGraph.nodes[draggingNodeIndex].y = clampedY;
+        updateNodeGeometry(draggingNodeIndex);
+        recomputeEdgeGeometry();
+        return;
+      }
       if (!isDragging) {
         return;
       }
@@ -1441,6 +1957,12 @@
     window.addEventListener("mouseup", function () {
       isDragging = false;
       canvas.classList.remove("is-dragging");
+      if (draggingNodeIndex !== null) {
+        const activeNode = nodeElements[draggingNodeIndex];
+        activeNode?.classList.remove("is-node-dragging");
+        draggingNodeIndex = null;
+        canvas.classList.remove("is-node-dragging");
+      }
     });
 
     canvas.addEventListener("dblclick", function () {
@@ -1557,9 +2079,9 @@
     }
 
     const positionedNodes = [
-      ...layoutColumn(entityNodes, 220, 120, 920, 126),
-      ...layoutColumn(hubNodes, 560, 220, 820, 118),
-      ...layoutColumn(valueNodes, 980, 90, 950, 108)
+      ...layoutColumn(entityNodes, 220, 170, 1320, 180),
+      ...layoutColumn(hubNodes, 620, 250, 1260, 170),
+      ...layoutColumn(valueNodes, 1020, 140, 1380, 190)
     ];
 
     const nodeIndex = new Map(positionedNodes.map((node, index) => [node.label, index]));
@@ -1576,6 +2098,271 @@
       nodes: positionedNodes,
       links: normalizedLinks
     };
+  }
+
+  function getGraphRoleByType(type) {
+    const typeMap = {
+      事件: "触发事件",
+      对象: "巡检对象",
+      位置: "空间位置",
+      状态: "状态描述"
+    };
+    return typeMap[type] || "图谱节点";
+  }
+
+  function getGraphKindByType(type) {
+    const kindMap = {
+      事件: "event",
+      对象: "entity",
+      位置: "location",
+      状态: "state"
+    };
+    return kindMap[type] || "hub";
+  }
+
+  function layoutStructuredGraph(nodes) {
+    const focusDegree = nodes.reduce((maxValue, node) => Math.max(maxValue, node.degree || 0), 0);
+    const grouped = new Map([
+      ["事件", []],
+      ["对象", []],
+      ["位置", []],
+      ["状态", []],
+      ["hub", []]
+    ]);
+
+    nodes.forEach((node) => {
+      const groupKey = grouped.has(node.type) ? node.type : "hub";
+      grouped.get(groupKey).push({
+        ...node,
+        isFocus: (node.degree || 0) === focusDegree && focusDegree > 0
+      });
+    });
+
+    const layoutByType = {
+      事件: { x: 660, y: 170, spread: 200, direction: "row" },
+      对象: { x: 660, y: 560, spread: 240, direction: "row" },
+      位置: { x: 160, y: 860, spread: 260, direction: "column" },
+      状态: { x: 1160, y: 860, spread: 240, direction: "column" },
+      hub: { x: 660, y: 1290, spread: 220, direction: "row" }
+    };
+
+    return Array.from(grouped.entries())
+      .flatMap(([type, items]) => {
+        if (!items.length) {
+          return [];
+        }
+        const config = layoutByType[type] || layoutByType.hub;
+        if (config.direction === "column") {
+          const startY = config.y - ((items.length - 1) * config.spread) / 2;
+          return items.map((node, index) => ({
+            ...node,
+            x: config.x,
+            y: startY + index * config.spread
+          }));
+        }
+
+        const startX = config.x - ((items.length - 1) * config.spread) / 2;
+        return items.map((node, index) => ({
+          ...node,
+          x: startX + index * config.spread,
+          y: config.y
+        }));
+      })
+      .sort((left, right) => left.y - right.y || left.x - right.x);
+  }
+
+  function buildGraphFromStructuredData(rawNodes, rawEdges) {
+    const nodeMap = new Map();
+    const edgeList = Array.isArray(rawEdges) ? rawEdges : [];
+    const degreeMap = new Map();
+
+    edgeList.forEach((edge) => {
+      const source = String(edge?.source || "").trim();
+      const target = String(edge?.target || "").trim();
+      if (!source || !target) {
+        return;
+      }
+      degreeMap.set(source, (degreeMap.get(source) || 0) + 1);
+      degreeMap.set(target, (degreeMap.get(target) || 0) + 1);
+    });
+
+    (Array.isArray(rawNodes) ? rawNodes : []).forEach((node) => {
+      const id = String(node?.id || "").trim();
+      if (!id) {
+        return;
+      }
+      const type = String(node?.type || "节点").trim();
+      nodeMap.set(id, {
+        id,
+        label: id,
+        type,
+        typeLabel: type,
+        role: getGraphRoleByType(type),
+        kind: getGraphKindByType(type),
+        degree: degreeMap.get(id) || 0,
+        summary: node?.properties && Object.keys(node.properties).length ? "包含属性" : ""
+      });
+    });
+
+    edgeList.forEach((edge) => {
+      const source = String(edge?.source || "").trim();
+      const target = String(edge?.target || "").trim();
+      if (source && !nodeMap.has(source)) {
+        const sourceType = String(edge?.source_type || "节点").trim();
+        nodeMap.set(source, {
+          id: source,
+          label: source,
+          type: sourceType,
+          typeLabel: sourceType,
+          role: getGraphRoleByType(sourceType),
+          kind: getGraphKindByType(sourceType),
+          degree: degreeMap.get(source) || 0,
+          summary: ""
+        });
+      }
+      if (target && !nodeMap.has(target)) {
+        const targetType = String(edge?.target_type || "节点").trim();
+        nodeMap.set(target, {
+          id: target,
+          label: target,
+          type: targetType,
+          typeLabel: targetType,
+          role: getGraphRoleByType(targetType),
+          kind: getGraphKindByType(targetType),
+          degree: degreeMap.get(target) || 0,
+          summary: ""
+        });
+      }
+    });
+
+    const laidOutNodes = layoutStructuredGraph(Array.from(nodeMap.values()));
+    const nodeIndex = new Map(laidOutNodes.map((node, index) => [node.id, index]));
+    const links = edgeList
+      .map((edge) => ({
+        from: nodeIndex.get(String(edge?.source || "").trim()),
+        to: nodeIndex.get(String(edge?.target || "").trim()),
+        text: String(edge?.relation || "").trim()
+      }))
+      .filter((edge) => Number.isInteger(edge.from) && Number.isInteger(edge.to) && edge.text);
+
+    return {
+      meta: `${laidOutNodes.length} 个节点 / ${links.length} 条关系`,
+      nodes: laidOutNodes,
+      links
+    };
+  }
+
+  function buildTriplesFromStructuredEdges(rawEdges) {
+    return dedupeTriples(
+      (Array.isArray(rawEdges) ? rawEdges : [])
+        .map((edge) => [
+          String(edge?.source || "").trim(),
+          String(edge?.relation || "").trim(),
+          String(edge?.target || "").trim()
+        ])
+        .filter((triple) => triple.every(Boolean))
+    );
+  }
+
+  function parseMonitorClause(clause) {
+    const text = String(clause || "").trim();
+    if (!text) {
+      return null;
+    }
+
+    const numberAtEndMatch = text.match(/^(.*?)([-+]?\d+(?:\.\d+)?\s*[a-zA-Z%]+)$/);
+    if (numberAtEndMatch) {
+      return {
+        relation: numberAtEndMatch[1].trim(),
+        value: numberAtEndMatch[2].trim()
+      };
+    }
+
+    const segments = text.split(/\s+/).filter(Boolean);
+    if (segments.length >= 2) {
+      return {
+        relation: segments.slice(0, -1).join(" ").trim(),
+        value: segments[segments.length - 1].trim()
+      };
+    }
+
+    return {
+      relation: "状态",
+      value: text
+    };
+  }
+
+  function buildMonitoringTriplesFromTextRecords(point) {
+    const triples = [];
+    const records = Array.isArray(point.monitorTextRecords) ? point.monitorTextRecords : [];
+
+    records.forEach((record, recordIndex) => {
+      const recordTitle = String(record?.title || `${point.name} 监测记录 ${recordIndex + 1}`).trim();
+      const recordTime = String(record?.time || point.latestTime || "").trim();
+      const summary = String(record?.summary || "").trim();
+      if (!summary || summary === "监测记录加载失败") {
+        return;
+      }
+
+      triples.push([point.name, "产生监测记录", recordTitle]);
+      if (recordTime) {
+        triples.push([recordTitle, "记录时间", recordTime]);
+      }
+
+      summary
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .forEach((line) => {
+          const lineMatch = line.match(/^(.+?)[:：]\s*(.+)$/);
+          if (!lineMatch) {
+            return;
+          }
+
+          const subject = lineMatch[1].trim();
+          const predicatesText = lineMatch[2].trim();
+          if (!subject || !predicatesText) {
+            return;
+          }
+
+          triples.push([recordTitle, "包含监测项", subject]);
+          triples.push([point.name, "监测到", subject]);
+
+          predicatesText
+            .split(/[，,]/)
+            .map((clause) => clause.trim())
+            .filter(Boolean)
+            .forEach((clause) => {
+              const parsedClause = parseMonitorClause(clause);
+              if (!parsedClause?.relation || !parsedClause?.value) {
+                return;
+              }
+              triples.push([subject, parsedClause.relation, parsedClause.value]);
+            });
+        });
+    });
+
+    return dedupeTriples(triples);
+  }
+
+  async function loadGraphTriples(graph) {
+    if (graph?.nodesPath && graph?.edgesPath) {
+      const cacheKey = `structured-triples:${graph.nodesPath}|${graph.edgesPath}`;
+      if (tripleCache.has(cacheKey)) {
+        return tripleCache.get(cacheKey);
+      }
+
+      try {
+        const edges = await loadJsonFile(graph.edgesPath);
+        const triples = buildTriplesFromStructuredEdges(edges);
+        tripleCache.set(cacheKey, triples);
+        return triples;
+      } catch (error) {
+        return [];
+      }
+    }
+
+    return loadTriplesFromPaths(getGraphSourcePaths(graph));
   }
 
   async function loadTriplesFromPath(sourcePath) {
@@ -1638,6 +2425,21 @@
   }
 
   async function loadInspectionGraph(graph) {
+    if (graph?.nodesPath && graph?.edgesPath) {
+      const cacheKey = `inspection-structured:${graph.nodesPath}|${graph.edgesPath}`;
+      if (graphCache.has(cacheKey)) {
+        return graphCache.get(cacheKey);
+      }
+
+      try {
+        const [nodes, edges] = await Promise.all([loadJsonFile(graph.nodesPath), loadJsonFile(graph.edgesPath)]);
+        const parsedGraph = buildGraphFromStructuredData(nodes, edges);
+        graphCache.set(cacheKey, parsedGraph);
+        return parsedGraph;
+      } catch (error) {
+      }
+    }
+
     const sourcePaths = getGraphSourcePaths(graph);
     if (!sourcePaths.length) {
       return { meta: "0 个节点 / 0 条关系", nodes: [], links: [] };
@@ -1657,20 +2459,29 @@
   async function loadMonitoringFusionGraph(point) {
     const inspectionSourcePaths = getGraphSourcePaths(point.inspectionGraph);
     const monitorSourcePaths = getGraphSourcePaths(point.monitorGraph);
-    const cacheKey = `monitor:${point.id}:${inspectionSourcePaths.join("|")}:${monitorSourcePaths.join("|")}`;
+    const structuredInspectionKey = [point.inspectionGraph?.nodesPath || "", point.inspectionGraph?.edgesPath || ""].join("|");
+    const monitorTextKey = (point.monitorTextRecords || [])
+      .map((record) => `${record.title || ""}:${record.time || ""}:${record.summary || ""}`)
+      .join("|");
+    const cacheKey = `monitor:${point.id}:${structuredInspectionKey}:${inspectionSourcePaths.join("|")}:${monitorSourcePaths.join("|")}:${monitorTextKey}`;
 
     if (graphCache.has(cacheKey)) {
       return graphCache.get(cacheKey);
     }
 
     const [inspectionTriples, generatedMonitoringTriples] = await Promise.all([
-      loadTriplesFromPaths(inspectionSourcePaths),
+      loadGraphTriples(point.inspectionGraph),
       loadTriplesFromPaths(monitorSourcePaths)
     ]);
-    const fallbackMonitoringTriples = generatedMonitoringTriples.length ? [] : buildMonitoringTriples(point);
+    const textMonitoringTriples = buildMonitoringTriplesFromTextRecords(point);
+    const fallbackMonitoringTriples =
+      generatedMonitoringTriples.length || textMonitoringTriples.length
+        ? []
+        : buildMonitoringTriples(point);
     const mergedTriples = dedupeTriples([
       ...inspectionTriples,
       ...generatedMonitoringTriples,
+      ...textMonitoringTriples,
       ...fallbackMonitoringTriples
     ]);
     const fusionGraph = buildGraphFromTriples(mergedTriples);
@@ -1815,6 +2626,7 @@
 
   async function init() {
     await loadAppData();
+    loadGradingResultsFromCache();
     await loadLatestGradingResults();
     initDashboard();
     setActiveTabs();

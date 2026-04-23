@@ -1,0 +1,49 @@
+{
+  "point_id": "BR-BY01",
+  "point_name": "白云中桥",
+  "subject_type": "桥梁",
+  "hazard_type": "",
+  "risk_level": "II级",
+  "risk_class": "risk-ii",
+  "summary": "综合考虑支座异常位移呈发展趋势、伸缩缝错台影响行车安全等因素，判定为高风险等级。",
+  "grading_basis": {
+    "matched_evidence": [
+      {
+        "evidence_sentence": "白云中桥桥面伸缩缝发现局部错台，高差为12mm，车辆通过时有轻微跳车现象，缝内杂物堆积厚度18mm。",
+        "kg_evidence": "白云中桥桥面伸缩缝发现局部错台，高差为12mm，车辆通过时有轻微跳车现象，缝内杂物堆积厚度18mm。",
+        "disaster_type": "桥梁伸缩缝及桥面病害",
+        "rule_part": "风险分级规则",
+        "rule_text": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。",
+        "reasoning": "伸缩缝局部错台高差达12mm，且引发车辆跳车现象，异常程度较高，影响行车安全，符合较高风险等级特征。"
+      },
+      {
+        "evidence_sentence": "白云中桥2号墩附近支座区域出现异常位移迹象，支座位移计监测横向位移16mm，较上一周期上升3mm，现场巡检发现支座表面老化开裂。",
+        "kg_evidence": "白云中桥2号墩附近支座区域出现异常位移迹象，支座位移计监测横向位移16mm，较上一周期上升3mm，现场巡检发现支座表面老化开裂。",
+        "disaster_type": "支座病害",
+        "rule_part": "风险分级规则",
+        "rule_text": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。",
+        "reasoning": "支座横向位移值较大（16mm）且呈上升趋势（增加3mm），结合老化开裂现象，表明结构性病害处于发展期，处置紧迫性高，符合高风险（II级）判定依据。"
+      }
+    ],
+    "matched_rules": [
+      {
+        "hazard_type": "桥梁伸缩缝及桥面病害",
+        "judgement_basis": "按知识图谱中异常现象和监测事实进行判定。",
+        "collect_info": "",
+        "grading_rule": "按异常程度、数值大小、发展趋势和处置紧迫性进行等级划分。"
+      }
+    ],
+    "kg_sources": {
+      "inspection_paths": [
+        "risk_workflow\\outputs\\node2\\front_inspection_records_1_bridge_br_by01_record1_20260423_141533\\iter0\\canon_kg.txt",
+        "risk_workflow\\outputs\\node2\\front_inspection_records_2_bridge_br_by01_record2_20260423_141852\\iter0\\canon_kg.txt"
+      ],
+      "monitor_paths": [
+        "risk_workflow\\outputs\\node3\\node3_monitor_records_new_1_BR-BY01_monitor_01_20260423_155102\\iter0\\canon_kg.txt"
+      ],
+      "triple_count": 17
+    }
+  },
+  "explanation": "基于命中证据分析，白云中桥支座出现较大横向位移且呈持续上升趋势，伴随老化开裂，属于结构性病害且发展态势明显，对桥梁安全构成较大威胁；同时伸缩缝错台导致跳车，影响行车安全。依据风险分级规则中异常严重程度、发展趋势及处置紧迫性原则，综合判定为II级。",
+  "suggestion": "建议安排专项复测和病害处治，并提高监测频率。"
+}

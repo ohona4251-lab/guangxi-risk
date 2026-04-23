@@ -1,0 +1,47 @@
+[
+  {
+    "id": "连续 48 小时强降雨",
+    "type": "事件",
+    "properties": {}
+  },
+  {
+    "id": "白云中桥",
+    "type": "位置",
+    "properties": {}
+  },
+  {
+    "id": "纵向裂缝",
+    "type": "对象",
+    "properties": {}
+  },
+  {
+    "id": "渗水",
+    "type": "状态",
+    "properties": {}
+  },
+  {
+    "id": "裂缝宽度约 2-5 厘米",
+    "type": "状态",
+    "properties": {}
+  },
+  {
+    "id": "坡脚",
+    "type": "位置",
+    "properties": {}
+  },
+  {
+    "id": "落石",
+    "type": "对象",
+    "properties": {}
+  },
+  {
+    "id": "排水沟",
+    "type": "对象",
+    "properties": {}
+  },
+  {
+    "id": "堵塞",
+    "type": "状态",
+    "properties": {}
+  }
+]

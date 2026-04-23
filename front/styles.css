@@ -611,6 +611,81 @@ select {
   background: linear-gradient(180deg, #f6faff, #eef4fb);
 }
 
+.fallback-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 684px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(126, 161, 198, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(126, 161, 198, 0.08) 1px, transparent 1px),
+    #f5f9fe;
+  background-size: 48px 48px;
+}
+
+.fallback-map-shape {
+  position: absolute;
+  inset: 8% 12%;
+}
+
+.fallback-map-shape svg {
+  width: 100%;
+  height: 100%;
+}
+
+.fallback-map-shape path:first-child {
+  fill: #edf5ff;
+  stroke: #7ea1c6;
+  stroke-width: 3;
+}
+
+.fallback-map-shape path:last-child {
+  fill: none;
+  stroke: #bdd1e7;
+  stroke-width: 1.4;
+}
+
+.fallback-map-marker {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 10px 24px rgba(29, 53, 87, 0.22);
+  cursor: pointer;
+}
+
+.fallback-map-marker.risk-i {
+  background: #ef4444;
+}
+
+.fallback-map-marker.risk-ii {
+  background: #f59e0b;
+}
+
+.fallback-map-marker.risk-iii {
+  background: #3b82f6;
+}
+
+.fallback-map-marker.risk-iv {
+  background: #16a34a;
+}
+
+.fallback-map-note {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+  max-width: 360px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--muted);
+  font-size: 13px;
+}
+
 @keyframes pulse {
   0% { transform: scale(0.7); opacity: 0.7; }
   70% { transform: scale(1.3); opacity: 0; }
@@ -1115,12 +1190,12 @@ select {
 }
 
 .graph-card {
-  min-height: 760px;
+  min-height: 980px;
 }
 
 .graph-board {
   margin-top: 8px;
-  height: 680px;
+  height: 900px;
   border-radius: 18px;
   background: linear-gradient(180deg, #ffffff, #f7faff);
   border: 1px solid #dbe6f2;
@@ -1137,6 +1212,10 @@ select {
 
 .graph-canvas.is-dragging {
   cursor: grabbing;
+}
+
+.graph-canvas.is-node-dragging {
+  cursor: default;
 }
 
 .graph-board svg {
@@ -1172,11 +1251,11 @@ select {
 }
 
 .graph-edge {
-  stroke: #8ca8cd;
-  stroke-width: 2.8;
+  fill: none;
+  stroke: #93add2;
+  stroke-width: 2.6;
   stroke-linecap: round;
   stroke-dasharray: 8 8;
-  marker-end: url(#graph-arrow);
   animation: edgeFlow 14s linear infinite;
 }
 
@@ -1188,32 +1267,41 @@ select {
   fill: rgba(255, 255, 255, 0.92);
   stroke: #d7e4f4;
   stroke-width: 1;
+  filter: drop-shadow(0 8px 14px rgba(73, 99, 140, 0.08));
 }
 
 .graph-edge-label {
   fill: #6c81a0;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
   text-anchor: middle;
+  dominant-baseline: middle;
 }
 
 .graph-node-card {
   opacity: 0;
   transform-origin: center;
   animation: graphFadeIn 0.55s ease forwards;
+  cursor: grab;
+  user-select: none;
+}
+
+.graph-node-card.is-node-dragging {
+  cursor: grabbing;
 }
 
 .graph-node-halo {
-  fill: rgba(79, 136, 227, 0.08);
+  fill: rgba(79, 136, 227, 0.1);
   animation: haloPulse 2.8s ease-in-out infinite;
 }
 
 .graph-node-box {
-  stroke-width: 1.4;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 22px 28px rgba(81, 111, 153, 0.12));
 }
 
 .graph-node-card.entity .graph-node-box {
-  fill: #eef5ff;
+  fill: #edf5ff;
   stroke: #a9c7f4;
 }
 
@@ -1222,38 +1310,51 @@ select {
   stroke: #9fd8b0;
 }
 
+.graph-node-card.state .graph-node-box {
+  fill: #fff7ea;
+  stroke: #f2cf90;
+}
+
 .graph-node-card.value .graph-node-box {
   fill: #fff7ea;
   stroke: #f2cf90;
 }
 
-.graph-node-card.entity .graph-node-dot {
-  fill: #4c8ef7;
+.graph-node-card.event .graph-node-box {
+  fill: #f3f7ff;
+  stroke: #91b4e8;
 }
 
-.graph-node-card.hub .graph-node-dot {
-  fill: #46b06d;
+.graph-node-card.location .graph-node-box {
+  fill: #eff7f3;
+  stroke: #98cfaf;
 }
 
-.graph-node-card.value .graph-node-dot {
-  fill: #f0ac3d;
+.graph-node-card.is-focus .graph-node-box {
+  stroke-width: 2;
+}
+
+.graph-node-badge {
+  fill: #6d84a6;
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .graph-node-title {
   fill: #24344f;
-  font-size: 21px;
+  font-size: 22px;
   font-weight: 800;
 }
 
 .graph-node-meta {
-  fill: #5e7394;
-  font-size: 16px;
+  fill: #5f7391;
+  font-size: 15px;
   font-weight: 800;
 }
 
-.graph-node-meta.sub {
-  font-size: 15px;
-  fill: #7487a4;
+.graph-node-summary {
+  fill: #7b8ca8;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -1315,22 +1416,6 @@ select {
   color: var(--text);
   font-size: 18px;
   line-height: 1.65;
-}
-
-.grade-brief-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.grade-brief-tags span {
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid #d7e5f5;
-  background: #f7fbff;
-  color: #58708f;
-  font-size: 13px;
-  font-weight: 800;
 }
 
 .grade-badge {
@@ -1469,7 +1554,6 @@ select {
 }
 
 .grade-hero-main p,
-.grade-score span,
 .source-grid span {
   margin: 0;
   color: var(--muted);
@@ -1486,22 +1570,6 @@ select {
 .grade-hero-main span {
   color: #58708f;
   font-weight: 800;
-}
-
-.grade-score {
-  min-width: 150px;
-  padding: 18px;
-  border-radius: 16px;
-  background: #f7fbff;
-  border: 1px solid #d8e7f8;
-  text-align: center;
-}
-
-.grade-score strong {
-  display: block;
-  margin-top: 6px;
-  color: var(--brand);
-  font-size: 32px;
 }
 
 .grade-section {
@@ -1527,7 +1595,6 @@ select {
   font-weight: 800;
 }
 
-.process-list,
 .evidence-list {
   margin: 0;
   padding-left: 24px;
@@ -1535,7 +1602,6 @@ select {
   line-height: 1.75;
 }
 
-.process-list li + li,
 .evidence-list li + li {
   margin-top: 8px;
 }
@@ -1574,44 +1640,84 @@ select {
   gap: 12px;
 }
 
-.rule-evidence-card {
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid #dce7f4;
-  background: #fbfdff;
-}
-
-.rule-evidence-card div {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e4edf7;
-}
-
-.rule-evidence-card div span {
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.rule-evidence-card div strong {
-  color: var(--brand);
-}
-
-.rule-evidence-card section {
-  margin-top: 14px;
-}
-
-.rule-evidence-card h5 {
-  margin: 0 0 8px;
-  color: var(--text);
-}
-
-.rule-evidence-card p,
 .grade-explanation {
   margin: 0;
   color: #607693;
   line-height: 1.8;
+}
+
+.evidence-match-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #dce7f4;
+  border-radius: 14px;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.evidence-match-item {
+  padding: 14px 16px;
+}
+
+.evidence-match-item + .evidence-match-item {
+  border-top: 1px solid #e4edf7;
+}
+
+.evidence-match-item p {
+  margin: 0;
+  color: #24344f;
+  font-weight: 800;
+  line-height: 1.7;
+}
+
+.evidence-match-item span,
+.evidence-match-item small {
+  display: block;
+  margin-top: 6px;
+  color: #607693;
+  line-height: 1.65;
+}
+
+.evidence-match-item small {
+  color: #7a8aa3;
+}
+
+.evidence-rule-text-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #dce7f4;
+  border-radius: 14px;
+  background: #fbfdff;
+  overflow: hidden;
+}
+
+.evidence-rule-text-list li {
+  padding: 14px 16px;
+}
+
+.evidence-rule-text-list li + li {
+  border-top: 1px solid #e4edf7;
+}
+
+.evidence-rule-text-list p {
+  margin: 0;
+  color: #24344f;
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+.evidence-rule-text-list span,
+.evidence-rule-text-list small {
+  display: block;
+  margin-top: 6px;
+  color: #607693;
+  line-height: 1.65;
+}
+
+.evidence-rule-text-list small {
+  color: #7a8aa3;
 }
 
 .grade-empty {
@@ -1789,6 +1895,7 @@ select {
     min-width: 180px;
     flex: 1 1 220px;
   }
+
 }
 
 @media (max-width: 760px) {
@@ -1844,4 +1951,5 @@ select {
   .rule-table {
     min-width: 1180px;
   }
+
 }

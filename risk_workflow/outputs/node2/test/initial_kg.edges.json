@@ -1,0 +1,56 @@
+[
+  {
+    "source": "连续 48 小时强降雨",
+    "source_type": "事件",
+    "relation": "导致",
+    "target": "纵向裂缝",
+    "target_type": "对象",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  },
+  {
+    "source": "纵向裂缝",
+    "source_type": "对象",
+    "relation": "位于",
+    "target": "K123+500 至 K124+200 边坡",
+    "target_type": "位置",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  },
+  {
+    "source": "纵向裂缝",
+    "source_type": "对象",
+    "relation": "状态为",
+    "target": "渗水",
+    "target_type": "状态",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  },
+  {
+    "source": "纵向裂缝",
+    "source_type": "对象",
+    "relation": "状态为",
+    "target": "裂缝宽度约 2-5 厘米",
+    "target_type": "状态",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  },
+  {
+    "source": "落石",
+    "source_type": "对象",
+    "relation": "位于",
+    "target": "坡脚",
+    "target_type": "位置",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  },
+  {
+    "source": "排水沟",
+    "source_type": "对象",
+    "relation": "状态为",
+    "target": "堵塞",
+    "target_type": "状态",
+    "properties": {},
+    "source_doc": "state.inspection_text"
+  }
+]

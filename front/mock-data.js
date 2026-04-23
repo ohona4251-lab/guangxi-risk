@@ -1,6 +1,5 @@
 window.RISK_APP_DATA = {
   dashboard: {
-    currentTime: "2026-04-23 09:36:09",
     gradingProgress: { done: 18, total: 20 }
   },
   points: [
