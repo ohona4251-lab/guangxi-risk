@@ -1,0 +1,49 @@
+{
+  "case_id": "node7_sample_wrong_bridge_20260423_212026",
+  "object_id": "BR-DEMO-002",
+  "saved_at": "2026-04-23T21:20:26",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "民族大道跨线桥",
+      "type": "桥梁",
+      "location": "青秀区-民族大道"
+    },
+    "monitoring_data": {
+      "records": [
+        {
+          "name": "挠度增量",
+          "value": "12mm/3d",
+          "status": "预警"
+        }
+      ]
+    },
+    "inspection_text": "主梁跨中裂缝宽度0.42mm，支座附近混凝土剥落，近三日挠度增量明显。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "IV级",
+    "grading_basis": {
+      "matched_rules": [
+        "桥梁-普通巡检-IV级"
+      ],
+      "evidence": [
+        "模型仅识别到普通巡检文本，未提升监测异常权重"
+      ]
+    },
+    "explanation": "模型错误地按普通巡检轻微病害处理，未结合裂缝宽度和挠度预警。",
+    "history_validation_report": {
+      "status": "checked",
+      "history_count": 5,
+      "consistency": "inconsistent",
+      "note": "历史同类裂缝+挠度预警均为II级"
+    },
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "history_check": "历史相似事件风险等级为II级，当前IV级偏低。",
+      "candidate_risk_level": "IV级"
+    }
+  }
+}

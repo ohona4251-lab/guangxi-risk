@@ -1,0 +1,17 @@
+{
+  "case_id": "node7_sample_correct_slope_20260423_212026",
+  "object_id": "SL-DEMO-003",
+  "saved_at": "2026-04-23T21:20:26",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_correct_slope_20260423_212026_20260423_212026.json",
+  "manual_review": {
+    "decision": "approved",
+    "is_correct": true,
+    "manual_grade": "II级",
+    "conclusion": "正确",
+    "basis": "历史校验和现场证据支持当前等级。",
+    "comment": "人工复核通过。"
+  },
+  "review_decision": "approved",
+  "review_comment": "人工复核通过。\n历史校验和现场证据支持当前等级。",
+  "status": "completed"
+}

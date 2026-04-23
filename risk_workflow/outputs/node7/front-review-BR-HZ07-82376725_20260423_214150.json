@@ -1,0 +1,56 @@
+{
+  "case_id": "front-review-BR-HZ07-82376725",
+  "object_id": "BR-HZ07",
+  "saved_at": "2026-04-23T21:41:50",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "红光大桥",
+      "type": "桥梁",
+      "location": "红光大桥",
+      "risk_level": "I级"
+    },
+    "monitoring_data": {
+      "records": [],
+      "force_anomaly": false
+    },
+    "inspection_text": "红光大桥主桥关键截面出现明显异常位移，夜间通行时伴随持续异响。\n巡检记录显示裂缝宽度扩大且扩展趋势明显，需立即开展现场复核和交通管控。\n\n红光大桥索力监测异常后，桥面局部出现不规则振动，桥头接缝处错台加剧。\n现场排查发现关键构件受力状态异常，存在较高安全风险，应启动应急处置。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "I级",
+    "grading_basis": {
+      "source": "front_existing_result",
+      "description": "当前仅展示基础分级结果。",
+      "inspection_summary": "",
+      "monitoring_points": []
+    },
+    "explanation": "当前仅展示基础分级结果。",
+    "history_validation_report": {
+      "status": "placeholder_history_validation",
+      "history_count": 0,
+      "consistency": "unknown"
+    },
+    "validated_result": {
+      "candidate_risk_level": "I级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "report": {
+        "status": "placeholder_history_validation",
+        "history_count": 0,
+        "consistency": "unknown"
+      },
+      "validated_result": {
+        "candidate_risk_level": "I级",
+        "needs_manual_review": true
+      },
+      "grading_basis": {
+        "source": "front_existing_result",
+        "description": "当前仅展示基础分级结果。",
+        "inspection_summary": "",
+        "monitoring_points": []
+      },
+      "explanation": "当前仅展示基础分级结果。"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "case_id": "front-review-BR-HZ07-82376725",
+  "object_id": "BR-HZ07",
+  "saved_at": "2026-04-23T22:02:26",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-BR-HZ07-82376725_20260423_214150.json",
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "I级",
+    "conclusion": "推理错误",
+    "basis": "",
+    "comment": ""
+  },
+  "review_decision": "rejected",
+  "review_comment": "manual review decision: rejected",
+  "status": "rejected_go_node8"
+}

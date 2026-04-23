@@ -1,0 +1,80 @@
+{
+  "case_id": "front-review-BR-BY01-a3ef29c8",
+  "object_id": "BR-BY01",
+  "saved_at": "2026-04-23T22:29:48",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-BR-BY01-a3ef29c8_20260423_222821.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "白云中桥",
+      "type": "桥梁",
+      "location": "白云中桥",
+      "risk_level": "II级"
+    },
+    "candidate_risk_level": "II级",
+    "manual_grade": "II级",
+    "validated_result": {
+      "candidate_risk_level": "II级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "依据不足",
+    "basis": "",
+    "comment": ""
+  },
+  "revision": {
+    "updated_rules": {
+      "rule_id": "RISK_GRADING_RULESET_V2.1_PROPOSED",
+      "description": "建议增加巡检文本解析与依据生成逻辑",
+      "parsing_rules": {
+        "enable_inspection_parsing": true,
+        "defect_keywords": {
+          "桥梁": [
+            "错台",
+            "跳车",
+            "位移",
+            "渗水",
+            "开裂"
+          ]
+        }
+      },
+      "grading_logic": {
+        "condition": "inspection_text contains defect_keywords",
+        "action": "set candidate_risk_level based on severity and generate basis"
+      }
+    },
+    "changes": [
+      {
+        "path": "rules.parsing_rules.enable_inspection_parsing",
+        "before": false,
+        "after": true,
+        "reason": "原结果未解析巡检文本，导致grading_basis为空泛的占位符，缺乏具体依据。"
+      },
+      {
+        "path": "rules.parsing_rules.defect_keywords.桥梁",
+        "before": [],
+        "after": [
+          "错台",
+          "位移",
+          "渗水"
+        ],
+        "reason": "增加关键词匹配规则，以便识别案例中提到的具体病害。"
+      }
+    ],
+    "rationale": "人工复核判定原结果'依据不足'。虽然原结果给出的'II级'风险等级在宏观上可能符合该桥梁状态，但系统未能提取巡检文本中'支座异常位移'、'渗水'、'错台'等关键病害信息作为支撑，仅输出了'当前仅展示基础分级结果'的无效描述。建议规则调整旨在强制系统解析巡检文本，提取关键病害并生成具体的分级依据，从而满足人工复核对'依据充分性'的要求。",
+    "rerun_result": {
+      "candidate_risk_level_before": "II级",
+      "candidate_risk_level_after": "II级",
+      "basis_after": "依据巡检记录：1. 桥面伸缩缝局部错台，车辆通过时有轻微跳车现象；2. 2号墩支座区域出现异常位移迹象，桥下可见轻微渗水痕迹，支座表面老化开裂。上述病害符合II级风险判定标准。"
+    },
+    "model": "glm-5"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "II级",
+    "candidate_risk_level_after": "II级",
+    "basis_after": "依据巡检记录：1. 桥面伸缩缝局部错台，车辆通过时有轻微跳车现象；2. 2号墩支座区域出现异常位移迹象，桥下可见轻微渗水痕迹，支座表面老化开裂。上述病害符合II级风险判定标准。"
+  }
+}

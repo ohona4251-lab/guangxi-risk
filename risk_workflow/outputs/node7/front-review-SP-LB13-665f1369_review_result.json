@@ -1,0 +1,17 @@
+{
+  "case_id": "front-review-SP-LB13-665f1369",
+  "object_id": "SP-LB13",
+  "saved_at": "2026-04-23T21:27:50",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-SP-LB13-665f1369_20260423_212700.json",
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "",
+    "comment": ""
+  },
+  "review_decision": "rejected",
+  "review_comment": "manual review decision: rejected",
+  "status": "rejected_go_node8"
+}

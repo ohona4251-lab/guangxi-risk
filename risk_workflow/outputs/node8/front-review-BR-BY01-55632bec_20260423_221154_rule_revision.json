@@ -1,0 +1,55 @@
+{
+  "case_id": "front-review-BR-BY01-55632bec",
+  "object_id": "BR-BY01",
+  "saved_at": "2026-04-23T22:11:54",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-BR-BY01-55632bec_20260423_221018.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "白云中桥",
+      "type": "桥梁",
+      "location": "白云中桥",
+      "risk_level": "II级"
+    },
+    "candidate_risk_level": "II级",
+    "manual_grade": "II级",
+    "validated_result": {
+      "candidate_risk_level": "II级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "推理错误",
+    "basis": "",
+    "comment": ""
+  },
+  "revision": {
+    "updated_rules": {
+      "rule_id": "risk_grading_logic_v2",
+      "description": "修订风险分级逻辑，增加对巡检文本（inspection_text）的强制解析环节，确保分级依据具体化。",
+      "content": "若inspection_text包含'支座位移'、'渗水'、'错台'等结构性病害关键词，必须将其提取并写入grading_basis。对于描述为'轻微'、'小幅'的病害，若数量较少且无加重趋势，维持原风险等级；若描述为'严重'或'急剧'，则提升风险等级。"
+    },
+    "changes": [
+      {
+        "path": "grading_logic.basis_generation",
+        "before": "依据元数据默认等级输出，忽略巡检文本细节。",
+        "after": "解析巡检文本，提取关键病害（如支座位移、渗水、错台）及其程度描述（轻微、严重），作为分级依据的核心内容。",
+        "reason": "原结果虽然等级判定为II级，但依据空洞（仅显示'基础分级结果'），未体现巡检发现的具体风险点，导致人工复核判定为'推理错误'。"
+      }
+    ],
+    "rationale": "人工复核判定原结果'推理错误'。虽然原结果定级（II级）与人工判定一致，但其分级依据缺失，未利用巡检文本中关于'支座异常位移'、'渗水'、'错台'等关键信息。调整规则的目的是确保分级过程不仅结果正确，而且逻辑链条完整、依据充分，能够真实反映基础设施的当前状态。",
+    "rerun_result": {
+      "candidate_risk_level_before": "II级",
+      "candidate_risk_level_after": "II级",
+      "basis_after": "依据巡检文本分析：1. 桥面伸缩缝局部错台，轻微跳车；2. 2号墩支座区域异常位移、老化开裂；3. 桥下轻微渗水；4. 监测位移小幅上升。综合病害严重程度（轻微/小幅），判定为II级风险。"
+    },
+    "model": "glm-5"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "II级",
+    "candidate_risk_level_after": "II级",
+    "basis_after": "依据巡检文本分析：1. 桥面伸缩缝局部错台，轻微跳车；2. 2号墩支座区域异常位移、老化开裂；3. 桥下轻微渗水；4. 监测位移小幅上升。综合病害严重程度（轻微/小幅），判定为II级风险。"
+  }
+}

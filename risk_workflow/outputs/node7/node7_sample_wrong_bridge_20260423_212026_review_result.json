@@ -1,0 +1,17 @@
+{
+  "case_id": "node7_sample_wrong_bridge_20260423_212026",
+  "object_id": "BR-DEMO-002",
+  "saved_at": "2026-04-23T21:20:26",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_wrong_bridge_20260423_212026_20260423_212026.json",
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+    "comment": "人工复核判定模型结果偏低，需要调整规则。"
+  },
+  "review_decision": "rejected",
+  "review_comment": "人工复核判定模型结果偏低，需要调整规则。\n裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+  "status": "rejected_go_node8"
+}

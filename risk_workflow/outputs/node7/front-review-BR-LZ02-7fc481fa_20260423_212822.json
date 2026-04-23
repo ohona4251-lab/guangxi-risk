@@ -1,0 +1,56 @@
+{
+  "case_id": "front-review-BR-LZ02-7fc481fa",
+  "object_id": "BR-LZ02",
+  "saved_at": "2026-04-23T21:28:22",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "柳江二桥",
+      "type": "桥梁",
+      "location": "柳江二桥",
+      "risk_level": "III级"
+    },
+    "monitoring_data": {
+      "records": [],
+      "force_anomaly": false
+    },
+    "inspection_text": "柳江二桥桥面局部铺装出现轻微松散，行车道边缘可见细小剥落。\n巡检记录显示病害范围较小，对通行影响有限，建议在下一个养护周期内处理。\n\n柳江二桥桥台过渡段存在轻微不均匀沉降迹象，车辆通过时有轻微颠簸。\n现场检查发现搭板接缝处状态一般，暂未触发高风险告警，但需要持续观测。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "III级",
+    "grading_basis": {
+      "source": "front_existing_result",
+      "description": "当前仅展示基础分级结果。",
+      "inspection_summary": "",
+      "monitoring_points": []
+    },
+    "explanation": "当前仅展示基础分级结果。",
+    "history_validation_report": {
+      "status": "placeholder_history_validation",
+      "history_count": 0,
+      "consistency": "unknown"
+    },
+    "validated_result": {
+      "candidate_risk_level": "III级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "report": {
+        "status": "placeholder_history_validation",
+        "history_count": 0,
+        "consistency": "unknown"
+      },
+      "validated_result": {
+        "candidate_risk_level": "III级",
+        "needs_manual_review": true
+      },
+      "grading_basis": {
+        "source": "front_existing_result",
+        "description": "当前仅展示基础分级结果。",
+        "inspection_summary": "",
+        "monitoring_points": []
+      },
+      "explanation": "当前仅展示基础分级结果。"
+    }
+  }
+}

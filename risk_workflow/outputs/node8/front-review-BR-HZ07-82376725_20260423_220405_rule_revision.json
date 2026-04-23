@@ -1,0 +1,70 @@
+{
+  "case_id": "front-review-BR-HZ07-82376725",
+  "object_id": "BR-HZ07",
+  "saved_at": "2026-04-23T22:04:05",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-BR-HZ07-82376725_20260423_214150.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "红光大桥",
+      "type": "桥梁",
+      "location": "红光大桥",
+      "risk_level": "I级"
+    },
+    "candidate_risk_level": "I级",
+    "manual_grade": "I级",
+    "validated_result": {
+      "candidate_risk_level": "I级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "I级",
+    "conclusion": "推理错误",
+    "basis": "",
+    "comment": ""
+  },
+  "revision": {
+    "updated_rules": {
+      "rule_id": "RISK-GRADING-2023-REV",
+      "description": "公路基础设施风险分级规则（建议修订版）",
+      "logic": [
+        {
+          "priority": 1,
+          "rule_type": "directive_match",
+          "condition": "inspection_text contains '应急处置' OR '交通管控' OR '立即封锁'",
+          "action": "SET_LEVEL_I",
+          "note": "当巡检文本中出现明确的应急处置或交通管控指令时，直接判定为I级风险，优先级最高。"
+        },
+        {
+          "priority": 2,
+          "rule_type": "technical_indicators",
+          "condition": "inspection_text matches technical_keywords AND monitoring_data validates anomaly",
+          "action": "CALCULATE_LEVEL",
+          "note": "基于技术指标和监测数据的综合计算，需解决文本与数据冲突。"
+        }
+      ]
+    },
+    "changes": [
+      {
+        "path": "rules.logic.priority",
+        "before": "基于关键词聚合的技术指标判定优先",
+        "after": "基于应急处置指令的判定优先",
+        "reason": "原推理过程未识别文本中'应启动应急处置'这一最高优先级指令，且在监测数据(force_anomaly: false)与文本描述(索力监测异常)不一致的情况下，仍引用文本描述作为依据，导致推理逻辑存在数据冲突和优先级错误。"
+      }
+    ],
+    "rationale": "人工复核判定原结果'推理错误'。虽然原定级结果（I级）与人工定级一致，但原推理路径存在严重缺陷：1. 忽略了文本中'应启动应急处置'这一决定性指令，该指令是I级风险的直接依据；2. 在监测数据未显示异常（force_anomaly: false）时，错误地引用了文本中的'索力监测异常'作为依据，未进行数据一致性校验。建议规则调整：增加'指令性关键词优先匹配'规则，当出现'应急处置'等关键词时，直接定级并作为主要依据，避免因技术指标解读偏差或数据冲突导致推理逻辑瑕疵。",
+    "rerun_result": {
+      "candidate_risk_level_before": "I级",
+      "candidate_risk_level_after": "I级",
+      "basis_after": "巡检文本明确包含'应启动应急处置'指令，依据建议规则[directive_match: priority 1]，直接判定为I级风险。"
+    },
+    "model": "glm-5"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "I级",
+    "candidate_risk_level_after": "I级",
+    "basis_after": "巡检文本明确包含'应启动应急处置'指令，依据建议规则[directive_match: priority 1]，直接判定为I级风险。"
+  }
+}

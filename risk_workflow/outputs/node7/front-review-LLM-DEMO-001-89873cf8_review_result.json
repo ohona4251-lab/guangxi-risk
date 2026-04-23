@@ -1,0 +1,17 @@
+{
+  "case_id": "front-review-LLM-DEMO-001-89873cf8",
+  "object_id": "LLM-DEMO-001",
+  "saved_at": "2026-04-23T21:37:59",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-LLM-DEMO-001-89873cf8_20260423_213759.json",
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+    "comment": "人工复核判定原结果偏低，请根据依据修正规则并重新判断。"
+  },
+  "review_decision": "rejected",
+  "review_comment": "人工复核判定原结果偏低，请根据依据修正规则并重新判断。\n裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+  "status": "rejected_go_node8"
+}

@@ -1,0 +1,71 @@
+{
+  "case_id": "front-review-LLM-DEMO-001-89873cf8",
+  "object_id": "LLM-DEMO-001",
+  "saved_at": "2026-04-23T21:38:40",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-LLM-DEMO-001-89873cf8_20260423_213759.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "大模型复核测试桥",
+      "type": "桥梁",
+      "location": "",
+      "risk_level": "IV级"
+    },
+    "candidate_risk_level": "IV级",
+    "manual_grade": "II级",
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+    "comment": "人工复核判定原结果偏低，请根据依据修正规则并重新判断。"
+  },
+  "revision": {
+    "updated_rules": {
+      "rule_id": "R-BRIDGE-COMB-001",
+      "name": "桥梁结构组合病害风险判定规则",
+      "description": "针对桥梁主要构件裂缝与变形监测数据的组合风险判定",
+      "conditions": [
+        {
+          "object_type": "桥梁",
+          "component": "主梁",
+          "defect_type": "裂缝",
+          "threshold": "宽度>=0.4mm"
+        },
+        {
+          "object_type": "桥梁",
+          "monitoring_type": "挠度",
+          "metric": "三日增量",
+          "threshold": ">=10mm"
+        }
+      ],
+      "logic": "AND",
+      "risk_level": "II级"
+    },
+    "changes": [
+      {
+        "path": "rules.bridge.combined_defects",
+        "before": "原规则未针对'主梁裂缝宽度>=0.4mm'与'挠度异常增量'的组合情况设定明确判定条款，导致系统仅依据单一指标或默认逻辑判定为IV级。",
+        "after": "新增规则条款：当主梁裂缝宽度>=0.4mm且挠度三日增量>=10mm时，直接判定为II级。",
+        "reason": "人工复核依据指出，裂缝宽度0.42mm且挠度三日增量12mm的工况在历史同类事件中均按II级处置，原规则未能有效识别此高风险组合，导致定级偏低。"
+      }
+    ],
+    "rationale": "人工复核明确指出原结果IV级偏低，并提供了关键依据：裂缝宽度0.42mm结合挠度三日增量12mm属于显著风险组合，历史数据支持II级判定。原规则体系显然缺失了对'裂缝宽度超限'与'变形速率预警'这一强相关组合的捕捉逻辑。通过新增针对性的组合判定规则，能够修正模型对结构安全劣化趋势的识别能力，使其与专家经验及历史处置标准保持一致。",
+    "rerun_result": {
+      "candidate_risk_level_before": "IV级",
+      "candidate_risk_level_after": "II级",
+      "basis_after": "依据建议规则[R-BRIDGE-COMB-001]：主梁裂缝宽度0.42mm（>=0.4mm）且挠度三日增量12mm（>=10mm），两项条件同时满足，判定为II级。"
+    },
+    "model": "glm-5"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "IV级",
+    "candidate_risk_level_after": "II级",
+    "basis_after": "依据建议规则[R-BRIDGE-COMB-001]：主梁裂缝宽度0.42mm（>=0.4mm）且挠度三日增量12mm（>=10mm），两项条件同时满足，判定为II级。"
+  }
+}

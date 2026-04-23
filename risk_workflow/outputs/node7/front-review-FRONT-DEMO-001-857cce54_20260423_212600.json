@@ -1,0 +1,74 @@
+{
+  "case_id": "front-review-FRONT-DEMO-001-857cce54",
+  "object_id": "FRONT-DEMO-001",
+  "saved_at": "2026-04-23T21:26:00",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "前端测试桥",
+      "type": "桥梁",
+      "location": "",
+      "risk_level": "IV级"
+    },
+    "monitoring_data": {
+      "records": [
+        {
+          "status": "预警",
+          "name": "挠度",
+          "value": "12mm/3d"
+        }
+      ],
+      "force_anomaly": true
+    },
+    "inspection_text": "裂缝宽度0.42mm"
+  },
+  "node6_input": {
+    "candidate_risk_level": "IV级",
+    "grading_basis": {
+      "source": "front_existing_result",
+      "description": "已有节点一到五输出的IV级结果",
+      "inspection_summary": "",
+      "monitoring_points": [
+        {
+          "status": "预警",
+          "name": "挠度",
+          "value": "12mm/3d"
+        }
+      ]
+    },
+    "explanation": "已有节点一到五输出的IV级结果",
+    "history_validation_report": {
+      "status": "placeholder_history_validation",
+      "history_count": 0,
+      "consistency": "unknown"
+    },
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "report": {
+        "status": "placeholder_history_validation",
+        "history_count": 0,
+        "consistency": "unknown"
+      },
+      "validated_result": {
+        "candidate_risk_level": "IV级",
+        "needs_manual_review": true
+      },
+      "grading_basis": {
+        "source": "front_existing_result",
+        "description": "已有节点一到五输出的IV级结果",
+        "inspection_summary": "",
+        "monitoring_points": [
+          {
+            "status": "预警",
+            "name": "挠度",
+            "value": "12mm/3d"
+          }
+        ]
+      },
+      "explanation": "已有节点一到五输出的IV级结果"
+    }
+  }
+}

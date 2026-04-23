@@ -1,0 +1,20 @@
+{
+  "run_id": "node7_sample_run_20260423_212026",
+  "saved_at": "2026-04-23T21:20:26",
+  "description": "三条已执行完成的节点七复核样例；其中BR-DEMO-002复核错误并生成节点八规则调整建议。",
+  "results": [
+    {
+      "pending_input": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_correct_bridge_20260423_212026_20260423_212026.json",
+      "review_result": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_correct_bridge_20260423_212026_review_result.json"
+    },
+    {
+      "pending_input": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_wrong_bridge_20260423_212026_20260423_212026.json",
+      "review_result": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_wrong_bridge_20260423_212026_review_result.json",
+      "node8_revision": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node8\\node7_sample_wrong_bridge_20260423_212026_rule_revision.json"
+    },
+    {
+      "pending_input": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_correct_slope_20260423_212026_20260423_212026.json",
+      "review_result": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_correct_slope_20260423_212026_review_result.json"
+    }
+  ]
+}

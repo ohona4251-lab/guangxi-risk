@@ -1,0 +1,17 @@
+{
+  "case_id": "front-review-FRONT-DEMO-001-857cce54",
+  "object_id": "FRONT-DEMO-001",
+  "saved_at": "2026-04-23T21:26:00",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-FRONT-DEMO-001-857cce54_20260423_212600.json",
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "裂缝宽度0.42mm且挠度预警，人工判定应为II级",
+    "comment": "模型结果偏低"
+  },
+  "review_decision": "rejected",
+  "review_comment": "模型结果偏低\n裂缝宽度0.42mm且挠度预警，人工判定应为II级",
+  "status": "rejected_go_node8"
+}

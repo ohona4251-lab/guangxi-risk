@@ -112,6 +112,9 @@
   const tripleCache = new Map();
   const inspectionTextCache = new Map();
   const monitorTextCache = new Map();
+  let workflowSession = null;
+  let workflowStartPromise = null;
+  let reviewHistoryItems = [];
 
   function parseLngLat(value) {
     if (!value) {
@@ -261,6 +264,203 @@
       throw new Error(`HTTP ${response.status}`);
     }
     return response.text();
+  }
+
+  async function postJson(path, payload) {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}`);
+    }
+    return data;
+  }
+
+  function translateRulePath(path) {
+    const value = String(path || "");
+    const exact = {
+      "grading_logic.basis_generation": "\u98ce\u9669\u5206\u7ea7\u903b\u8f91 - \u4f9d\u636e\u751f\u6210",
+      "grading_logic": "\u98ce\u9669\u5206\u7ea7\u903b\u8f91",
+      "basis_generation": "\u4f9d\u636e\u751f\u6210"
+    };
+    if (exact[value]) {
+      return exact[value];
+    }
+    return value
+      .replaceAll("grading_logic", "\u98ce\u9669\u5206\u7ea7\u903b\u8f91")
+      .replaceAll("basis_generation", "\u4f9d\u636e\u751f\u6210")
+      .replaceAll("risk_level", "\u98ce\u9669\u7b49\u7ea7")
+      .replaceAll("candidate_risk_level", "\u5019\u9009\u98ce\u9669\u7b49\u7ea7")
+      .replaceAll("manual_review", "\u4eba\u5de5\u590d\u6838")
+      .replaceAll("_", "")
+      .replaceAll(".", " - ");
+  }
+
+  function renderHistoryItem(item) {
+    const summary = item.summary || {};
+    const manualReview = summary.manual_review || {};
+    const changes = Array.isArray(summary.changes) ? summary.changes : [];
+    const changeHtml = changes.length
+      ? changes
+          .map(
+            (change) => `
+              <div class="review-change-item">
+                <p><strong>${translateRulePath(change.path)}</strong></p>
+                <p>\u539f\u89c4\u5219\uff1a${change.before || ""}</p>
+                <p>\u5efa\u8bae\u4fee\u6539\uff1a${change.after || ""}</p>
+                <p>\u4fee\u6539\u539f\u56e0\uff1a${change.reason || ""}</p>
+              </div>
+            `
+          )
+          .join("")
+      : "";
+    const rerun = summary.rerun_result || {};
+    const rerunHtml = rerun.candidate_risk_level_after
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u98ce\u9669\u70b9\u7ed3\u679c</strong></p>
+            <p>\u539f\u7b49\u7ea7\uff1a${rerun.candidate_risk_level_before || ""}</p>
+            <p>\u91cd\u65b0\u5224\u65ad\u7b49\u7ea7\uff1a${rerun.candidate_risk_level_after || ""}</p>
+            <p>\u5224\u65ad\u4f9d\u636e\uff1a${rerun.basis_after || ""}</p>
+          </div>
+        `
+      : `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u98ce\u9669\u70b9\u7ed3\u679c</strong></p>
+            <p>\u672c\u6b21\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u672a\u4ea7\u751f\u91cd\u65b0\u6267\u884c\u7ed3\u679c\u3002</p>
+          </div>
+        `;
+    return `
+      <div class="review-rerun-block">
+        <p><strong>${item.title || "\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55"}</strong></p>
+        <p>\u5ba1\u6838\u65f6\u95f4\uff1a${item.saved_at || ""}</p>
+        <p>\u590d\u6838\u7ed3\u8bba\uff1a${manualReview.conclusion || summary.review_decision || ""}</p>
+        <p>\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${manualReview.manual_grade || ""}</p>
+        <p>\u590d\u6838\u4f9d\u636e\uff1a${manualReview.basis || summary.review_comment || ""}</p>
+        ${rerunHtml}
+        ${changeHtml}
+      </div>
+    `;
+  }
+
+  async function loadReviewHistoryOptions(selectEl) {
+    try {
+      const response = await fetch("/api/review/history");
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      reviewHistoryItems = Array.isArray(data.items) ? data.items : [];
+      selectEl.innerHTML = [
+        `<option value="">\u9009\u62e9\u5386\u53f2\u5ba1\u6838</option>`,
+        ...reviewHistoryItems.map(
+          (item, index) => `<option value="${index}">${item.saved_at || ""} ${item.title || ""}</option>`
+        )
+      ].join("");
+    } catch (error) {
+      selectEl.innerHTML = `<option value="">\u5386\u53f2\u5ba1\u6838\u52a0\u8f7d\u5931\u8d25</option>`;
+    }
+  }
+
+  function renderWorkflowReviewPayload(data) {
+    const interruptPayload = data?.interrupt || {};
+    const payload = interruptPayload.review_payload || {};
+    const validated = payload.validated_result || {};
+    const report = payload.report || {};
+    const basis = payload.grading_basis || {};
+    return [
+      `<p><strong>\u8282\u70b9\u4e03\u5f85\u590d\u6838\u8f93\u5165\uff08\u6765\u81ea\u5df2\u6267\u884c\u5b8c\u6210\u7684\u7ed3\u679c\u548c\u8282\u70b9\u516d\u5386\u53f2\u6821\u9a8c\uff09\uff1a</strong></p>`,
+      `<p>\u6848\u4ef6\u7f16\u53f7\uff1a${interruptPayload.case_id || ""}</p>`,
+      `<p>\u98ce\u9669\u70b9\u7f16\u53f7\uff1a${interruptPayload.object_id || ""}</p>`,
+      `<p>\u5f53\u524d\u7b49\u7ea7\uff1a${validated.candidate_risk_level || ""}</p>`,
+      `<p>\u9700\u8981\u4eba\u5de5\u590d\u6838\uff1a${validated.needs_manual_review ? "\u662f" : "\u5426"}</p>`,
+      `<p>\u5386\u53f2\u6821\u9a8c\uff1a${report.consistency || report.status || ""}</p>`,
+      `<p>\u5206\u7ea7\u4f9d\u636e\uff1a${basis.description || payload.explanation || ""}</p>`
+    ].join("");
+  }
+
+  async function startReviewWorkflow(point) {
+    workflowSession = null;
+    reviewResultPanelEl.textContent = "\u6b63\u5728\u57fa\u4e8e\u5df2\u6267\u884c\u5b8c\u6210\u7684\u7ed3\u679c\u751f\u6210\u8282\u70b9\u4e03\u590d\u6838\u8f93\u5165...";
+    if (workflowStartPromise) {
+      return workflowStartPromise;
+    }
+    workflowStartPromise = postJson("/api/workflow/start", { point });
+    try {
+      const data = await workflowStartPromise;
+      workflowSession = data;
+      reviewResultPanelEl.innerHTML = renderWorkflowReviewPayload(data);
+      return data;
+    } catch (error) {
+      reviewResultPanelEl.innerHTML = `<p>\u590d\u6838\u63a5\u53e3\u4e0d\u53ef\u7528\uff1a${error.message}</p>`;
+      return null;
+    } finally {
+      workflowStartPromise = null;
+    }
+  }
+
+  function renderWorkflowSubmitResult(data) {
+    const state = data?.state || {};
+    const ruleRevision = state.rule_revision || {};
+    const log = Array.isArray(state.rule_update_log) ? state.rule_update_log : [];
+    const latestLog = log.length ? log[log.length - 1] : null;
+    const changes = Array.isArray(ruleRevision.changes)
+      ? ruleRevision.changes
+      : Array.isArray(latestLog?.changes)
+        ? latestLog.changes
+        : [];
+    const changeHtml = changes.length
+      ? changes
+          .map(
+            (item) => `
+              <div class="review-change-item">
+                <p><strong>${translateRulePath(item.path)}</strong></p>
+                <p>\u539f\u89c4\u5219\uff1a${item.before || ""}</p>
+                <p>\u5efa\u8bae\u4fee\u6539\uff1a${item.after || ""}</p>
+                <p>\u4fee\u6539\u539f\u56e0\uff1a${item.reason || ""}</p>
+              </div>
+            `
+          )
+          .join("")
+      : "<p>\u8282\u70b98\u672a\u8fd4\u56de\u53ef\u5c55\u793a\u7684\u89c4\u5219\u53d8\u66f4\u3002</p>";
+    const rerunResult = state.rerun_result || null;
+    const rerunHtml = data.status === "awaiting_review" || rerunResult
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u91cd\u65b0\u6267\u884c\u8be5\u98ce\u9669\u70b9\u7684\u7ed3\u679c</strong></p>
+            ${
+              rerunResult
+                ? `
+                    <p>\u539f\u7b49\u7ea7\uff1a${rerunResult.candidate_risk_level_before || ""}</p>
+                    <p>\u91cd\u65b0\u5224\u65ad\u7b49\u7ea7\uff1a${rerunResult.candidate_risk_level_after || ""}</p>
+                    <p>\u5224\u65ad\u4f9d\u636e\uff1a${rerunResult.basis_after || ""}</p>
+                  `
+                : `<p>\u5df2\u5b8c\u6210\u590d\u6838\u5904\u7406\u3002</p>`
+            }
+          </div>
+        `
+      : "";
+    const revisionHtml = ruleRevision.output_path || latestLog
+      ? `
+          <div class="review-rerun-block">
+            <p><strong>\u8282\u70b98\u5efa\u8bae\u4fee\u6539\u7684\u89c4\u5219\uff08\u672a\u5199\u5165\u8282\u70b9\u4e8c\u89c4\u5219\uff09</strong></p>
+            <p>\u4fee\u6539\u4f9d\u636e\uff1a${ruleRevision.rationale || latestLog?.rationale || ""}</p>
+            ${changeHtml}
+            <button id="commit-rule-btn" class="primary-outline small" type="button">\u5199\u5165\u89c4\u5219\u5e93</button>
+            <span id="commit-rule-status" class="review-inline-status"></span>
+          </div>
+        `
+      : "";
+    return [
+      `<p><strong>\u590d\u6838\u72b6\u6001\uff1a</strong>${data.status === "completed" ? "\u5df2\u5b8c\u6210" : "\u5f85\u518d\u6b21\u590d\u6838"}</p>`,
+      `<p><strong>\u590d\u6838\u7ed3\u8bba\uff1a</strong>${state.review_decision === "approved" ? "\u6b63\u786e" : state.review_decision === "rejected" ? "\u9519\u8bef" : state.review_decision || ""}</p>`,
+      `<p><strong>\u98ce\u9669\u7ed3\u679c\uff1a</strong>${state.candidate_risk_level || ""}</p>`,
+      revisionHtml,
+      rerunHtml
+    ].join("");
   }
 
   async function loadInspectionTextRecords(point) {
@@ -724,7 +924,7 @@
           <h3>复核学习</h3>
           <p>${point.review.text}</p>
         </div>
-        <button class="primary-btn small" type="button" data-open-review-form="true">填写内容</button>
+        <button class="primary-btn small" type="button" data-open-review-form="true">\u8fdb\u5165\u590d\u6838\u8868\u5355</button>
       </div>
       <div class="review-box">
         <p>${point.review.note}</p>
@@ -748,6 +948,7 @@
     reviewManualGradeEl.value = point.gradeResult.level;
     reviewRemarkEl.value = "";
     reviewResultPanelEl.textContent = "暂无复核结果。";
+    startReviewWorkflow(point);
   }
 
   function showInspectionView(point) {
@@ -781,6 +982,124 @@
   function collectCheckedValue(name) {
     const target = document.querySelector(`input[name="${name}"]:checked`);
     return target ? target.value : "";
+  }
+
+  function isReviewMarkedCorrect() {
+    const options = Array.from(document.querySelectorAll('input[name="review-correct"]'));
+    const checkedIndex = options.findIndex((item) => item.checked);
+    return checkedIndex === 0;
+  }
+
+  function ensureReviewActionButtons() {
+    if (!reviewSubmitBtn) {
+      return;
+    }
+    reviewSubmitBtn.disabled = false;
+    reviewSubmitBtn.textContent = "\u63d0\u4ea4\u590d\u6838";
+    const bindSaveDraft = (saveBtn) => {
+      if (!saveBtn || saveBtn.dataset.bound === "true") {
+        return;
+      }
+      saveBtn.dataset.bound = "true";
+      saveBtn.addEventListener("click", function () {
+        const summary = [
+          `\u8282\u70b9\u7b49\u7ea7\uff1a${reviewNodeGradeEl.value}`,
+          `\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${reviewManualGradeEl.value}`,
+          `\u4eba\u5de5\u7ed3\u8bba\uff1a${collectCheckedValue("review-conclusion")}`,
+          `\u662f\u5426\u6b63\u786e\uff1a${collectCheckedValue("review-correct")}`,
+          `\u5907\u6ce8\uff1a${reviewRemarkEl.value || "\u65e0"}`
+        ];
+        reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
+      });
+    };
+    const existingSaveBtn = document.getElementById("review-save-btn");
+    if (reviewSubmitBtn.parentElement?.classList.contains("review-actions")) {
+      bindSaveDraft(existingSaveBtn);
+      const existingHistorySelect = document.getElementById("review-history-select");
+      if (existingHistorySelect && !existingHistorySelect.dataset.loaded) {
+        existingHistorySelect.dataset.loaded = "true";
+        loadReviewHistoryOptions(existingHistorySelect);
+      }
+      return;
+    }
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    const historySelect = document.createElement("select");
+    historySelect.id = "review-history-select";
+    historySelect.className = "review-history-select";
+    historySelect.innerHTML = `<option value="">\u9009\u62e9\u5386\u53f2\u5ba1\u6838</option>`;
+    const historyBtn = document.createElement("button");
+    historyBtn.id = "review-history-btn";
+    historyBtn.className = "ghost-btn";
+    historyBtn.type = "button";
+    historyBtn.textContent = "\u67e5\u770b\u5386\u53f2\u5ba1\u6838";
+    historyBtn.addEventListener("click", function () {
+      const item = reviewHistoryItems[Number(historySelect.value)];
+      if (!item) {
+        reviewResultPanelEl.innerHTML = `<p>\u8bf7\u5148\u9009\u62e9\u4e00\u6761\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u3002</p>`;
+        return;
+      }
+      reviewResultPanelEl.innerHTML = renderHistoryItem(item);
+    });
+    const saveBtn = document.createElement("button");
+    saveBtn.id = "review-save-btn";
+    saveBtn.className = "ghost-btn";
+    saveBtn.type = "button";
+    saveBtn.textContent = "\u4fdd\u5b58\u586b\u5199\u5185\u5bb9";
+    bindSaveDraft(saveBtn);
+    reviewSubmitBtn.parentNode.insertBefore(actions, reviewSubmitBtn);
+    actions.appendChild(historySelect);
+    actions.appendChild(historyBtn);
+    actions.appendChild(saveBtn);
+    actions.appendChild(reviewSubmitBtn);
+    loadReviewHistoryOptions(historySelect);
+  }
+
+  async function submitManualReview() {
+    const isCorrect = isReviewMarkedCorrect();
+    const reviewPayload = {
+      is_correct: isCorrect,
+      manual_grade: reviewManualGradeEl.value,
+      conclusion: collectCheckedValue("review-conclusion"),
+      basis: reviewRemarkEl.value || "",
+      comment: reviewRemarkEl.value || ""
+    };
+
+    reviewResultPanelEl.textContent = "\u5df2\u6536\u5230\u63d0\u4ea4\u590d\u6838\uff0c\u6b63\u5728\u5904\u7406...";
+
+    if (!workflowSession?.thread_id && currentDetailPoint) {
+      reviewSubmitBtn.disabled = true;
+      reviewResultPanelEl.textContent = "\u590d\u6838\u4f1a\u8bdd\u5c1a\u672a\u5efa\u7acb\uff0c\u6b63\u5728\u5148\u751f\u6210\u8282\u70b9\u4e03\u5f85\u590d\u6838\u8f93\u5165...";
+      await startReviewWorkflow(currentDetailPoint);
+      reviewSubmitBtn.disabled = false;
+    }
+
+    if (workflowSession?.thread_id) {
+      reviewSubmitBtn.disabled = true;
+      reviewResultPanelEl.textContent = "\u6b63\u5728\u63d0\u4ea4\u4eba\u5de5\u590d\u6838...";
+      try {
+        const data = await postJson("/api/workflow/review", {
+          thread_id: workflowSession.thread_id,
+          review: reviewPayload
+        });
+        workflowSession = data;
+        reviewResultPanelEl.innerHTML = renderWorkflowSubmitResult(data);
+      } catch (error) {
+        reviewResultPanelEl.innerHTML = `<p>\u63d0\u4ea4\u590d\u6838\u5931\u8d25\uff1a${error.message}</p>`;
+      } finally {
+        reviewSubmitBtn.disabled = false;
+      }
+      return;
+    }
+
+    const summary = [
+      `\u8282\u70b9\u7b49\u7ea7\uff1a${reviewNodeGradeEl.value}`,
+      `\u4eba\u5de5\u4fee\u6b63\u7b49\u7ea7\uff1a${reviewManualGradeEl.value}`,
+      `\u4eba\u5de5\u7ed3\u8bba\uff1a${collectCheckedValue("review-conclusion")}`,
+      `\u662f\u5426\u6b63\u786e\uff1a${collectCheckedValue("review-correct")}`,
+      `\u5907\u6ce8\uff1a${reviewRemarkEl.value || "\u65e0"}`
+    ];
+    reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
   }
 
   function renderGraph(containerId, graph) {
@@ -1249,16 +1568,6 @@
       showOverviewView();
     });
 
-    reviewSubmitBtn.addEventListener("click", function () {
-      const summary = [
-        `节点等级：${reviewNodeGradeEl.value}`,
-        `人工修正等级：${reviewManualGradeEl.value}`,
-        `人工结论：${collectCheckedValue("review-conclusion")}`,
-        `是否正确：${collectCheckedValue("review-correct")}`,
-        `备注：${reviewRemarkEl.value || "无"}`
-      ];
-      reviewResultPanelEl.innerHTML = summary.map((item) => `<p>${item}</p>`).join("");
-    });
   }
 
   async function init() {
@@ -1266,11 +1575,55 @@
     initDashboard();
     setActiveTabs();
     renderList();
+    ensureReviewActionButtons();
     bindListEvents();
     bindTabs();
     bindModal();
     await renderMap();
   }
+
+  document.addEventListener("click", async function (event) {
+    const submitButton = event.target.closest("#review-submit-btn");
+    if (submitButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      await submitManualReview();
+      return;
+    }
+
+    const historyButton = event.target.closest("#review-history-btn");
+    if (historyButton) {
+      event.preventDefault();
+      const historySelect = document.getElementById("review-history-select");
+      const item = reviewHistoryItems[Number(historySelect?.value)];
+      if (!item) {
+        reviewResultPanelEl.innerHTML = `<p>\u8bf7\u5148\u9009\u62e9\u4e00\u6761\u5386\u53f2\u5ba1\u6838\u8bb0\u5f55\u3002</p>`;
+        return;
+      }
+      reviewResultPanelEl.innerHTML = renderHistoryItem(item);
+      return;
+    }
+
+    const commitButton = event.target.closest("#commit-rule-btn");
+    if (commitButton) {
+      event.preventDefault();
+      const statusEl = document.getElementById("commit-rule-status");
+      if (!workflowSession?.thread_id) {
+        if (statusEl) statusEl.textContent = "\u6682\u65e0\u53ef\u5199\u5165\u7684\u590d\u6838\u4f1a\u8bdd\u3002";
+        return;
+      }
+      commitButton.disabled = true;
+      if (statusEl) statusEl.textContent = "\u6b63\u5728\u5199\u5165\u89c4\u5219\u5e93...";
+      try {
+        const data = await postJson("/api/rules/commit", { thread_id: workflowSession.thread_id });
+        if (statusEl) statusEl.textContent = `\u5df2\u5199\u5165\u89c4\u5219\u5e93\uff1a${data.rule_library_path || ""}`;
+      } catch (error) {
+        if (statusEl) statusEl.textContent = `\u5199\u5165\u5931\u8d25\uff1a${error.message}`;
+      } finally {
+        commitButton.disabled = false;
+      }
+    }
+  });
 
   init();
 })();

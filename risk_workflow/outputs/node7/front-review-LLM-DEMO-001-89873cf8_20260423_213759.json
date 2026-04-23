@@ -1,0 +1,74 @@
+{
+  "case_id": "front-review-LLM-DEMO-001-89873cf8",
+  "object_id": "LLM-DEMO-001",
+  "saved_at": "2026-04-23T21:37:59",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "大模型复核测试桥",
+      "type": "桥梁",
+      "location": "",
+      "risk_level": "IV级"
+    },
+    "monitoring_data": {
+      "records": [
+        {
+          "status": "预警",
+          "name": "挠度增量",
+          "value": "12mm/3d"
+        }
+      ],
+      "force_anomaly": true
+    },
+    "inspection_text": "主梁裂缝宽度0.42mm，支座混凝土剥落"
+  },
+  "node6_input": {
+    "candidate_risk_level": "IV级",
+    "grading_basis": {
+      "source": "front_existing_result",
+      "description": "节点一到五已输出IV级",
+      "inspection_summary": "",
+      "monitoring_points": [
+        {
+          "status": "预警",
+          "name": "挠度增量",
+          "value": "12mm/3d"
+        }
+      ]
+    },
+    "explanation": "节点一到五已输出IV级",
+    "history_validation_report": {
+      "status": "placeholder_history_validation",
+      "history_count": 0,
+      "consistency": "unknown"
+    },
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "report": {
+        "status": "placeholder_history_validation",
+        "history_count": 0,
+        "consistency": "unknown"
+      },
+      "validated_result": {
+        "candidate_risk_level": "IV级",
+        "needs_manual_review": true
+      },
+      "grading_basis": {
+        "source": "front_existing_result",
+        "description": "节点一到五已输出IV级",
+        "inspection_summary": "",
+        "monitoring_points": [
+          {
+            "status": "预警",
+            "name": "挠度增量",
+            "value": "12mm/3d"
+          }
+        ]
+      },
+      "explanation": "节点一到五已输出IV级"
+    }
+  }
+}

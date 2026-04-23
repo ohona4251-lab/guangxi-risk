@@ -1,0 +1,69 @@
+{
+  "case_id": "front-review-BR-HZ07-82376725",
+  "object_id": "BR-HZ07",
+  "saved_at": "2026-04-23T21:42:49",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-BR-HZ07-82376725_20260423_214150.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "红光大桥",
+      "type": "桥梁",
+      "location": "红光大桥",
+      "risk_level": "I级"
+    },
+    "candidate_risk_level": "I级",
+    "manual_grade": "I级",
+    "validated_result": {
+      "candidate_risk_level": "I级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "I级",
+    "conclusion": "依据不足",
+    "basis": "",
+    "comment": ""
+  },
+  "revision": {
+    "updated_rules": {
+      "rule_id": "rule_bridge_text_analysis_v2",
+      "description": "针对桥梁巡检文本的风险分级规则",
+      "logic": {
+        "condition": "inspection_text CONTAINS ['异常位移', '裂缝宽度扩大', '索力监测异常', '应急处置']",
+        "action": "SET risk_level = 'I级'",
+        "basis_generation": "EXTRACT sentences matching keywords"
+      }
+    },
+    "changes": [
+      {
+        "path": "/previous_rules/当前风险分级规则",
+        "before": "由节点一到五的已执行结果提供。",
+        "after": "若巡检文本包含'异常位移'、'裂缝扩大'、'索力异常'或'应急处置'等关键词，直接判定为I级风险，并提取相关描述作为依据。",
+        "reason": "原规则描述为占位符，缺乏具体的文本挖掘逻辑，导致系统无法生成有效的分级依据，被人工复核判定为'依据不足'。"
+      }
+    ],
+    "rationale": "人工复核结果显示，虽然定级（I级）正确，但结论为'依据不足'。这表明原规则未能有效提取巡检文本中的关键风险描述（如'关键截面出现明显异常位移'、'裂缝宽度扩大'、'启动应急处置'）。调整建议是增加针对高风险关键词的提取规则，确保分级结果附带具体的文本证据，从而满足人工复核对依据充分性的要求。",
+    "rerun_result": {
+      "candidate_risk_level_before": "I级",
+      "candidate_risk_level_after": "I级",
+      "basis_after": {
+        "source": "inspection_text_analysis",
+        "description": "依据巡检文本关键词匹配：1. 主桥关键截面出现明显异常位移；2. 裂缝宽度扩大且扩展趋势明显；3. 索力监测异常；4. 关键构件受力状态异常，应启动应急处置。",
+        "inspection_summary": "红光大桥主桥关键截面出现明显异常位移，裂缝宽度扩大且扩展趋势明显，索力监测异常，需启动应急处置。",
+        "monitoring_points": []
+      }
+    },
+    "model": "glm-5"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "I级",
+    "candidate_risk_level_after": "I级",
+    "basis_after": {
+      "source": "inspection_text_analysis",
+      "description": "依据巡检文本关键词匹配：1. 主桥关键截面出现明显异常位移；2. 裂缝宽度扩大且扩展趋势明显；3. 索力监测异常；4. 关键构件受力状态异常，应启动应急处置。",
+      "inspection_summary": "红光大桥主桥关键截面出现明显异常位移，裂缝宽度扩大且扩展趋势明显，索力监测异常，需启动应急处置。",
+      "monitoring_points": []
+    }
+  }
+}

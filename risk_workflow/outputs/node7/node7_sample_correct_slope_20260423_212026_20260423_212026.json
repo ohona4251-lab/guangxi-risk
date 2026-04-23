@@ -1,0 +1,49 @@
+{
+  "case_id": "node7_sample_correct_slope_20260423_212026",
+  "object_id": "SL-DEMO-003",
+  "saved_at": "2026-04-23T21:20:26",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "凤岭北路边坡K2+300",
+      "type": "边坡",
+      "location": "青秀区-凤岭北路"
+    },
+    "monitoring_data": {
+      "records": [
+        {
+          "name": "位移速率",
+          "value": "3.2mm/d",
+          "status": "告警"
+        }
+      ]
+    },
+    "inspection_text": "坡面局部冲刷，截水沟淤堵；降雨后位移速率短时升高。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "II级",
+    "grading_basis": {
+      "matched_rules": [
+        "边坡-雨后位移告警-II级"
+      ],
+      "evidence": [
+        "降雨后位移速率告警",
+        "坡面排水不畅"
+      ]
+    },
+    "explanation": "降雨后位移告警且排水设施异常，模型判定II级。",
+    "history_validation_report": {
+      "status": "checked",
+      "history_count": 4,
+      "consistency": "consistent"
+    },
+    "validated_result": {
+      "candidate_risk_level": "II级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "history_check": "历史雨后位移告警事件多为II级，当前结果一致。",
+      "candidate_risk_level": "II级"
+    }
+  }
+}

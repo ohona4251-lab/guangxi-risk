@@ -1,0 +1,54 @@
+{
+  "case_id": "node7_sample_wrong_bridge_20260423_212026",
+  "object_id": "BR-DEMO-002",
+  "saved_at": "2026-04-23T21:20:26",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\node7_sample_wrong_bridge_20260423_212026_20260423_212026.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "民族大道跨线桥",
+      "type": "桥梁",
+      "location": "青秀区-民族大道"
+    },
+    "candidate_risk_level": "IV级",
+    "manual_grade": "II级",
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "II级",
+    "conclusion": "等级偏低",
+    "basis": "裂缝宽度0.42mm且挠度三日增量12mm，历史同类事件均按II级处置。",
+    "comment": "人工复核判定模型结果偏低，需要调整规则。"
+  },
+  "revision": {
+    "updated_rules": {
+      "桥梁-普通巡检-IV级": "仅在无结构裂缝超限、无监测告警或预警时，普通巡检轻微病害可评为IV级。",
+      "桥梁-结构裂缝-II级": "裂缝宽度超过0.30mm，且出现挠度、沉降、位移等任一监测预警时，风险等级应不低于II级。"
+    },
+    "changes": [
+      {
+        "path": "桥梁-结构裂缝-II级",
+        "before": "裂缝宽度超过0.30mm且伴随监测预警时应不低于II级",
+        "after": "裂缝宽度超过0.30mm，且出现挠度、沉降、位移等任一监测预警时，风险等级应不低于II级。",
+        "reason": "人工复核依据指出裂缝宽度0.42mm，并伴随挠度三日增量12mm预警，当前IV级明显偏低。"
+      },
+      {
+        "path": "桥梁-普通巡检-IV级",
+        "before": "一般巡检病害且无监测异常时评为IV级",
+        "after": "仅在无结构裂缝超限、无监测告警或预警时，普通巡检轻微病害可评为IV级。",
+        "reason": "防止存在结构裂缝或监测预警时仍被普通巡检规则覆盖为IV级。"
+      }
+    ],
+    "rationale": "根据人工复核依据，模型漏用了结构裂缝和挠度预警信息，因此只提出规则调整建议，不直接改写节点二规则文件。",
+    "model": "manual-sample"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "IV级",
+    "candidate_risk_level_after": "II级",
+    "basis_after": "命中修订建议中的“桥梁-结构裂缝-II级”：裂缝0.42mm超过0.30mm，且挠度三日增量12mm为预警。"
+  }
+}

@@ -99,6 +99,22 @@ What `main.py` does:
 - resume #2: `approved` (finishes at `END`)
 - prints final state
 
+Run the review UI with the local workflow API:
+
+```powershell
+python -m risk_workflow.grading.server --host 127.0.0.1 --port 8000
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/front/
+```
+
+The API exposes:
+- `POST /api/workflow/start`: runs one risk point until node 7 pauses and returns the node 6 review payload.
+- `POST /api/workflow/review`: resumes with the manual review result. Correct reviews end the workflow; incorrect reviews trigger rule revision in node 8 and rerun the same risk point.
+
 ## 5. Persistent Memory (SQLite + thread_id)
 
 The graph uses:

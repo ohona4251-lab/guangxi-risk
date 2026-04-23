@@ -1,0 +1,49 @@
+{
+  "case_id": "node7_sample_correct_bridge_20260423_212026",
+  "object_id": "BR-DEMO-001",
+  "saved_at": "2026-04-23T21:20:26",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "青秀互通A匝道桥",
+      "type": "桥梁",
+      "location": "青秀区-互通A匝道"
+    },
+    "monitoring_data": {
+      "records": [
+        {
+          "name": "位移",
+          "value": "0.8mm",
+          "status": "正常"
+        }
+      ]
+    },
+    "inspection_text": "伸缩缝轻微渗水，桥面铺装局部磨耗；未见结构性裂缝。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "IV级",
+    "grading_basis": {
+      "matched_rules": [
+        "桥梁-轻微病害-IV级"
+      ],
+      "evidence": [
+        "巡检仅发现轻微病害",
+        "监测数据正常"
+      ]
+    },
+    "explanation": "当前病害轻微且监测指标正常，模型判定IV级。",
+    "history_validation_report": {
+      "status": "checked",
+      "history_count": 3,
+      "consistency": "consistent"
+    },
+    "validated_result": {
+      "candidate_risk_level": "IV级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "history_check": "历史三次均为IV级或低风险，当前结果一致。",
+      "candidate_risk_level": "IV级"
+    }
+  }
+}

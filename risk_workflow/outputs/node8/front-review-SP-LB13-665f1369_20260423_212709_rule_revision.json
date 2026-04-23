@@ -1,0 +1,49 @@
+{
+  "case_id": "front-review-SP-LB13-665f1369",
+  "object_id": "SP-LB13",
+  "saved_at": "2026-04-23T21:27:09",
+  "pending_review_output_path": "C:\\Users\\z\\Desktop\\项目\\风险分级大模型\\risk-agent\\guangxi-risk\\risk_workflow\\outputs\\node7\\front-review-SP-LB13-665f1369_20260423_212700.json",
+  "adjusted_risk_point": {
+    "object_meta": {
+      "name": "城北1号桥",
+      "type": "桥梁",
+      "location": "柳州市柳北区",
+      "risk_level": "III级"
+    },
+    "candidate_risk_level": "III级",
+    "manual_grade": "III级",
+    "validated_result": {
+      "candidate_risk_level": "III级",
+      "needs_manual_review": true
+    }
+  },
+  "manual_review": {
+    "decision": "rejected",
+    "is_correct": false,
+    "manual_grade": "III级",
+    "conclusion": "等级偏低",
+    "basis": "",
+    "comment": ""
+  },
+  "revision": {
+    "updated_rules": {
+      "当前风险分级规则": "由节点一到五的已执行结果提供。",
+      "桥梁-人工复核修正": "当人工复核结论为“等级偏低”，且复核依据支持风险等级由III级调整为III级时，该风险点建议按III级重新输出。"
+    },
+    "changes": [
+      {
+        "path": "桥梁-人工复核修正",
+        "before": "暂无对应人工复核修正规则",
+        "after": "当人工复核结论为“等级偏低”，且复核依据支持风险等级由III级调整为III级时，该风险点建议按III级重新输出。",
+        "reason": "manual review decision: rejected"
+      }
+    ],
+    "rationale": "根据人工复核依据生成规则调整建议；仅写入节点八输出，不改写节点二规则。",
+    "model": "front-review-deterministic"
+  },
+  "rerun_result": {
+    "candidate_risk_level_before": "III级",
+    "candidate_risk_level_after": "III级",
+    "basis_after": "manual review decision: rejected"
+  }
+}

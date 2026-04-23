@@ -69,7 +69,7 @@
       <section class="status-row">
         <div class="status-panel status-panel-time">
           <p>当前时间 <strong id="current-time"></strong></p>
-          <p>距定时分级（08:00）<strong class="success-text">22:23:50</strong></p>
+          <p>定时分级（08:00）<strong class="success-text">22:23:50</strong></p>
         </div>
         <div class="status-panel">
           <span>监测点总数</span>
@@ -89,8 +89,8 @@
         <aside class="point-list-panel">
           <div class="panel-heading">
             <div>
-              <h2>检测点列表</h2>
-              <p id="list-summary">桥梁：0 处 | 边坡：0 处</p>
+              <h2>监测点列表</h2>
+              <p id="list-summary">桥梁：0 条 | 边坡：0 条</p>
             </div>
             <div class="mini-tabs">
               <button class="mini-tab is-active" type="button" data-type="桥梁">桥梁</button>
@@ -105,7 +105,7 @@
             <div class="map-overlay">
               <div class="map-title">
                 <h2>区域分布</h2>
-                <p>检测点在辖区内的风险空间分布</p>
+                <p>监测点在辖区内的风险空间分布</p>
               </div>
               <div class="map-legend">
                 <h3>图例</h3>
@@ -117,7 +117,7 @@
                 </ul>
               </div>
             </div>
-            <div id="map-root" class="map-root" aria-label="检测点地图"></div>
+            <div id="map-root" class="map-root" aria-label="监测点地图"></div>
           </div>
         </section>
       </main>
@@ -220,7 +220,14 @@
                   <textarea id="review-remark" rows="5" placeholder="补充人工复核依据"></textarea>
                 </label>
 
-                <button id="review-submit-btn" class="primary-btn" type="button">填写内容</button>
+                <div class="review-actions">
+                  <select id="review-history-select" class="review-history-select">
+                    <option value="">选择历史审核</option>
+                  </select>
+                  <button id="review-history-btn" class="ghost-btn" type="button">查看历史审核</button>
+                  <button id="review-save-btn" class="ghost-btn" type="button">保存填写内容</button>
+                  <button id="review-submit-btn" class="primary-btn" type="button">提交复核</button>
+                </div>
               </div>
             </section>
 
@@ -230,11 +237,12 @@
             </section>
           </div>
         </div>
+
         <div id="detail-inspection-page" class="detail-view hidden">
           <div class="review-page-header">
             <div>
               <h3>巡检信息详情</h3>
-              <p id="inspection-page-subtitle">查看当前检测点的详细巡检文本。</p>
+              <p id="inspection-page-subtitle">查看当前监测点的详细巡检文本。</p>
             </div>
             <button id="inspection-back-btn" class="ghost-btn small" type="button">返回概览</button>
           </div>
@@ -259,6 +267,6 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=review-layout-history-rerun-20260423"></script>
   </body>
 </html>

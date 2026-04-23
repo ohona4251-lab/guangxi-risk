@@ -1,0 +1,56 @@
+{
+  "case_id": "front-review-SP-LB13-665f1369",
+  "object_id": "SP-LB13",
+  "saved_at": "2026-04-23T21:27:00",
+  "status": "pending_manual_review",
+  "risk_point": {
+    "object_meta": {
+      "name": "城北1号桥",
+      "type": "桥梁",
+      "location": "柳州市柳北区",
+      "risk_level": "III级"
+    },
+    "monitoring_data": {
+      "records": [],
+      "force_anomaly": false
+    },
+    "inspection_text": "城北1号桥桥面铺装局部磨耗较明显，高峰时段车辆通行噪声增大。\n巡检记录显示伸缩装置表面轻微锈蚀，暂未发现明显结构性损伤，建议纳入常规养护计划。\n\n城北1号桥护栏与桥面连接处发现细微裂缝，雨后表面有积水残留。\n现场复查显示裂缝尚未贯通，排水组织基本正常，当前以关注和复检为主。"
+  },
+  "node6_input": {
+    "candidate_risk_level": "III级",
+    "grading_basis": {
+      "source": "front_existing_result",
+      "description": "当前仅展示基础分级结果。",
+      "inspection_summary": "",
+      "monitoring_points": []
+    },
+    "explanation": "当前仅展示基础分级结果。",
+    "history_validation_report": {
+      "status": "placeholder_history_validation",
+      "history_count": 0,
+      "consistency": "unknown"
+    },
+    "validated_result": {
+      "candidate_risk_level": "III级",
+      "needs_manual_review": true
+    },
+    "review_payload": {
+      "report": {
+        "status": "placeholder_history_validation",
+        "history_count": 0,
+        "consistency": "unknown"
+      },
+      "validated_result": {
+        "candidate_risk_level": "III级",
+        "needs_manual_review": true
+      },
+      "grading_basis": {
+        "source": "front_existing_result",
+        "description": "当前仅展示基础分级结果。",
+        "inspection_summary": "",
+        "monitoring_points": []
+      },
+      "explanation": "当前仅展示基础分级结果。"
+    }
+  }
+}
